@@ -10,6 +10,7 @@ const useStore = create((set) => ({
   isDriverSelectDisabled: true,
   isLapSelectDisabled: true,
   loading: false,
+  cameraMode: "free",
   setTelemetryData: (data) => set({ telemetryData: data }),
   setSelectedYear: (year) => set({ selectedYear: year }),
   setSelectedDriver: (driver) => set({ selectedDriver: driver }),
@@ -19,8 +20,9 @@ const useStore = create((set) => ({
   setIsDriverSelectDisabled: (isDisabled) => set({ isDriverSelectDisabled: isDisabled }),
   setIsLapSelectDisabled: (isDisabled) => set({ isLapSelectDisabled: isDisabled }),
   setLoading: (isLoading) => set({ loading: isLoading }),
-  timer: 0,
-  setTimer: (time) => set({ timer: time }),
+  setCameraMode: (mode) => set({ cameraMode: mode }),
+  isRacingLineVisible: true,
+  toggleRacingLineVisibility: () => set((state) => ({ isRacingLineVisible: !state.isRacingLineVisible })),
 }));
 
 export default useStore;

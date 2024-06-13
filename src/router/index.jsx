@@ -2,8 +2,8 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.css';
 
-import Homepage from "../pages/old/Homepage";
-// import Simulation from "../pages/old/Simulation";
+// import Homepage from "../pages/old/Homepage";
+import Simulation from "../pages/Simulation";
 import useStore from '../utils/store';
 
 const RouterHandler = () => {
@@ -12,7 +12,7 @@ const RouterHandler = () => {
 
   return (
     <Routes>
-      {/* <Route path="/" element={<Homepage setTelemetryData={setTelemetryData} />} /> */}
+      <Route path="/" element={<Simulation telemetryData={telemetryData} />} />
       {/* <Route path="/simulation" element={<Simulation telemetryData={telemetryData} />} /> */}
     </Routes>
   );
