@@ -1,0 +1,63 @@
+.homepage {
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+
+  .timer-box {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: rgba(0, 0, 0, 0.7); /* Şeffaf siyah arka plan */
+    color: white; /* Beyaz yazı */
+    padding: 10px 20px;
+    border-radius: 10px; /* Yuvarlatılmış köşeler */
+    font-family: 'Courier New', Courier, monospace; /* Kronometre tarzı yazı tipi */
+    font-size: 1.5em; /* Yazı boyutu */
+    z-index: 1;
+  }
+
+  .controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1;
+  }
+
+  .controls button {
+    padding: 10px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+  }
+
+  .controls button:hover {
+    background-color: #555;
+  }
+
+  .timer {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 120px;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+
+    .text {
+      color: white;
+      font-family: "Lucida Console", Monaco, monospace;
+      font-size: 16px;
+      margin: 0;
+    }
+  }
+}
