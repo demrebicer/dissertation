@@ -14,7 +14,7 @@ function RacingLine({ points }) {
   const rotatedVertices = useMemo(
     () =>
       points.map((p) => {
-        const vector = new THREE.Vector3(p.x - 47.5, p.y + 1, -p.z + 19.5);
+        const vector = new THREE.Vector3(p.x - 47.5, p.y + 0.1, -p.z + 19.5);
         vector.applyMatrix4(rotationMatrix);
         return vector;
       }),

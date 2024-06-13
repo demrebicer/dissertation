@@ -23,6 +23,7 @@ function SimulationControls() {
     setLaps,
     setLoading,
     setTelemetryData,
+    setLapDuration,
   } = useStore();
 
   const years = [
@@ -94,7 +95,8 @@ function SimulationControls() {
       axios
         .get(`http://localhost:8000/telemetry/${selectedYear.value}/${selectedDriver.value}/${selectedLap.value}`)
         .then((response) => {
-          setTelemetryData(response.data);
+          setTelemetryData(response.data.telemetry);
+          setLapDuration(response.data.lap_duration)
           setLoading(false);
         })
         .catch((error) => {

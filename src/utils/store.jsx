@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 const useStore = create((set) => ({
   telemetryData: null,
+  lapDuration: null,
   selectedYear: null,
   selectedDriver: null,
   selectedLap: null,
@@ -12,6 +13,7 @@ const useStore = create((set) => ({
   loading: false,
   cameraMode: "free",
   setTelemetryData: (data) => set({ telemetryData: data }),
+  setLapDuration: (data) => set({lapDuration: data}),
   setSelectedYear: (year) => set({ selectedYear: year }),
   setSelectedDriver: (driver) => set({ selectedDriver: driver }),
   setSelectedLap: (lap) => set({ selectedLap: lap }),
@@ -21,7 +23,7 @@ const useStore = create((set) => ({
   setIsLapSelectDisabled: (isDisabled) => set({ isLapSelectDisabled: isDisabled }),
   setLoading: (isLoading) => set({ loading: isLoading }),
   setCameraMode: (mode) => set({ cameraMode: mode }),
-  isRacingLineVisible: true,
+  isRacingLineVisible: false,
   toggleRacingLineVisibility: () => set((state) => ({ isRacingLineVisible: !state.isRacingLineVisible })),
 }));
 

@@ -15,7 +15,7 @@ import RaceTrack from "../components/RaceTrack";
 import RacingLine from "../components/RacingLine";
 
 function Simulation() {
-  const { telemetryData, loading, cameraMode, isRacingLineVisible } = useStore();
+  const { telemetryData, lapDuration, loading, cameraMode, isRacingLineVisible } = useStore();
 
   const points = useMemo(() => telemetryData?.map((p) => new THREE.Vector3(p[0], p[1], p[2])), [telemetryData]);
 

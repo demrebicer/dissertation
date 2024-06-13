@@ -24,7 +24,7 @@ function MovingCar({ path, duration }) {
   );
 
   const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
-  const spacedPoints = useMemo(() => curve.getSpacedPoints(5000), [curve]);
+  const spacedPoints = useMemo(() => curve.getSpacedPoints(2500), [curve]);
 
   useFrame((state, delta) => {
     elapsedTimeRef.current += delta;
