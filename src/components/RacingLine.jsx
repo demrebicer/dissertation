@@ -18,7 +18,7 @@ function RacingLine({ points }) {
         vector.applyMatrix4(rotationMatrix);
         return vector;
       }),
-    [points, rotationMatrix]
+    [points, rotationMatrix],
   );
 
   return <Line ref={lineRef} points={rotatedVertices} color={"red"} lineWidth={5} />;

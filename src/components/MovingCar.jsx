@@ -20,7 +20,7 @@ function MovingCar({ path, duration }) {
         vector.applyMatrix4(rotationMatrix);
         return new THREE.Vector3(vector.x, vector.y, vector.z);
       }),
-    [path]
+    [path],
   );
 
   const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);

@@ -1,6 +1,7 @@
-import React from "react";
+import { useEffect } from "react";
 import Select from "react-select";
 import useStore from "../utils/store";
+import axios from "axios";
 
 function SimulationControls() {
   const {
@@ -15,7 +16,13 @@ function SimulationControls() {
     isDriverSelectDisabled,
     isLapSelectDisabled,
     setCameraMode,
-    toggleRacingLineVisibility
+    toggleRacingLineVisibility,
+    setDrivers,
+    setIsDriverSelectDisabled,
+    setIsLapSelectDisabled,
+    setLaps,
+    setLoading,
+    setTelemetryData,
   } = useStore();
 
   const years = [
@@ -26,6 +33,76 @@ function SimulationControls() {
     { value: 2022, label: 2022 },
     { value: 2023, label: 2023 },
   ];
+
+  useEffect(() => {
+    if (selectedYear) {
+      setLoading(true);
+      axios
+        .get(`http://localhost:8000/drivers/${selectedYear.value}`)
+        .then((response) => {
+          const driverOptions = response.data.map((driver) => ({ value: driver, label: driver }));
+          setDrivers(driverOptions);
+          setSelectedDriver(null);
+          setSelectedLap(null);
+          setIsDriverSelectDisabled(false);
+          setIsLapSelectDisabled(true);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching drivers:", error);
+          setIsDriverSelectDisabled(true);
+          setIsLapSelectDisabled(true);
+          setLoading(false);
+        });
+    } else {
+      setDrivers([]);
+      setSelectedDriver(null);
+      setLaps([]);
+      setSelectedLap(null);
+      setIsDriverSelectDisabled(true);
+      setIsLapSelectDisabled(true);
+    }
+  }, [selectedYear, setDrivers, setIsDriverSelectDisabled, setIsLapSelectDisabled, setLaps, setLoading, setSelectedDriver, setSelectedLap]);
+
+  useEffect(() => {
+    if (selectedYear && selectedDriver) {
+      setLoading(true);
+      axios
+        .get(`http://localhost:8000/laps/${selectedYear.value}/${selectedDriver.value}`)
+        .then((response) => {
+          const lapOptions = response.data.map((lap) => ({ value: lap, label: `Lap ${lap}` }));
+          setLaps(lapOptions);
+          setSelectedLap(null);
+          setIsLapSelectDisabled(false);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching laps:", error);
+          setIsLapSelectDisabled(true);
+          setLoading(false);
+        });
+    } else {
+      setLaps([]);
+      setSelectedLap(null);
+      setIsLapSelectDisabled(true);
+    }
+  }, [selectedDriver, selectedYear, setIsLapSelectDisabled, setLaps, setLoading, setSelectedLap]);
+
+  useEffect(() => {
+    if (selectedYear && selectedDriver && selectedLap) {
+      setLoading(true);
+      axios
+        .get(`http://localhost:8000/telemetry/${selectedYear.value}/${selectedDriver.value}/${selectedLap.value}`)
+        .then((response) => {
+          setTelemetryData(response.data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching telemetry data:", error);
+          setLoading(false);
+        });
+    }
+  }, [selectedYear, selectedDriver, selectedLap, setTelemetryData, setLoading]);
 
   return (
     <div className="controls">
