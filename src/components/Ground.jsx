@@ -2,8 +2,8 @@ import React from "react";
 
 function Ground() {
   return (
-    <mesh position={[0, -50.5, 0]} receiveShadow>
-      <boxGeometry attach="geometry" args={[300, 100, 300]} />
+    <mesh position={[-15, -0.1, 15]} receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
+      <circleGeometry attach="geometry" args={[120, 120]} />
       <meshStandardMaterial attach="material" color="#5C875A" flatShading roughness={1} metalness={0} />
     </mesh>
   );
