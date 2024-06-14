@@ -7,7 +7,8 @@ import useStore from "../utils/store";
 function MovingCar({ path, translation, rotation, duration }) {
   const carRef = useRef();
   const elapsedTimeRef = useRef(0);
-  const { cameraMode } = useStore();
+  const previousTRef = useRef(0); // To keep track of the previous t
+  const { cameraMode, setCurrentLapTime } = useStore();
 
   const rotationAngleDegrees = 75;
   const rotationAngleRadians = rotationAngleDegrees * (Math.PI / 180);
@@ -84,6 +85,16 @@ function MovingCar({ path, translation, rotation, duration }) {
       state.camera.position.copy(cameraPosition);
       state.camera.lookAt(carRef.current.position);
     }
+
+    // Update the current lap time
+    setCurrentLapTime(elapsedTimeRef.current);
+
+    // Reset the timer when a lap is completed
+    if (t < previousTRef.current) {
+      elapsedTimeRef.current = 0;
+    }
+
+    previousTRef.current = t;
   });
 
   const gltf = useGLTF("/assets/simplecar.glb", true);

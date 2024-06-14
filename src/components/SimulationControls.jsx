@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import Select from "react-select";
 import useStore from "../utils/store";
 import axios from "axios";
@@ -25,6 +25,8 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     setLoading,
     setTelemetryData,
     setLapDuration,
+    lapDuration,
+    currentLapTime,
   } = useStore();
 
   const years = [
@@ -111,52 +113,15 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
   const resetTranslationZ = () => setTranslation((prev) => ({ ...prev, z: 0 }));
   const resetRotationY = () => setRotation({ y: 0 });
 
+  const formatLapTime = (duration) => {
+    const minutes = Math.floor(duration / 60);
+    const seconds = Math.floor(duration % 60);
+    const milliseconds = Math.floor((duration * 1000) % 1000);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}:${milliseconds.toString().padStart(3, "0")}`;
+  };
+
   return (
     <div>
-      {/* <div className="racing-line-controls">
-        <h3>Racing Line Controls</h3>
-        <div>
-          <label>
-            Translation X:
-            <input
-              type="range"
-              min="-10"
-              max="10"
-              step="0.5"
-              value={translation.x}
-              onChange={(e) => setTranslation({ ...translation, x: parseFloat(e.target.value) })}
-            />
-            <button onClick={resetTranslationX}>Reset</button>
-          </label>
-        </div>
-        <div>
-          <label>
-            Translation Z:
-            <input
-              type="range"
-              min="-10"
-              max="10"
-              step="0.5"
-              value={translation.z}
-              onChange={(e) => setTranslation({ ...translation, z: parseFloat(e.target.value) })}
-            />
-            <button onClick={resetTranslationZ}>Reset</button>
-          </label>
-        </div>
-        <div>
-          <label>
-            Rotation Y:
-            <input
-              type="range"
-              min="-180"
-              max="180"
-              value={rotation.y}
-              onChange={(e) => setRotation({ ...rotation, y: parseFloat(e.target.value) })}
-            />
-            <button onClick={resetRotationY}>Reset</button>
-          </label>
-        </div>
-      </div> */}
       <div className="controls">
         <button onClick={() => setCameraMode("free")}>Free Camera</button>
         <button onClick={() => setCameraMode("follow")}>Follow Camera</button>
@@ -187,6 +152,9 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           value={selectedLap}
         />
         <button onClick={toggleRacingLineVisibility}>Toggle Racing Line</button>
+      </div>
+      <div className="lap-timer">
+        <span>{formatLapTime(currentLapTime)}</span>
       </div>
     </div>
   );

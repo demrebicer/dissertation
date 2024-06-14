@@ -15,6 +15,7 @@ const useStore = create((set) => ({
   isRacingLineVisible: false,
   translation: { x: 0, z: 0 },
   rotation: { x: 0 },
+  currentLapTime: 0,
   setTelemetryData: (data) => set({ telemetryData: data }),
   setLapDuration: (data) => set({ lapDuration: data }),
   setSelectedYear: (year) => set({ selectedYear: year }),
@@ -29,6 +30,7 @@ const useStore = create((set) => ({
   toggleRacingLineVisibility: () => set((state) => ({ isRacingLineVisible: !state.isRacingLineVisible })),
   setTranslation: (translation) => set({ translation }),
   setRotation: (rotation) => set({ rotation }),
+  setCurrentLapTime: (time) => set({ currentLapTime: time }),
 }));
 
 export default useStore;
