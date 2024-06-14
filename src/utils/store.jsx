@@ -12,8 +12,11 @@ const useStore = create((set) => ({
   isLapSelectDisabled: true,
   loading: false,
   cameraMode: "free",
+  isRacingLineVisible: false,
+  translation: { x: 0, z: 0 },
+  rotation: { x: 0 },
   setTelemetryData: (data) => set({ telemetryData: data }),
-  setLapDuration: (data) => set({lapDuration: data}),
+  setLapDuration: (data) => set({ lapDuration: data }),
   setSelectedYear: (year) => set({ selectedYear: year }),
   setSelectedDriver: (driver) => set({ selectedDriver: driver }),
   setSelectedLap: (lap) => set({ selectedLap: lap }),
@@ -23,8 +26,9 @@ const useStore = create((set) => ({
   setIsLapSelectDisabled: (isDisabled) => set({ isLapSelectDisabled: isDisabled }),
   setLoading: (isLoading) => set({ loading: isLoading }),
   setCameraMode: (mode) => set({ cameraMode: mode }),
-  isRacingLineVisible: false,
   toggleRacingLineVisibility: () => set((state) => ({ isRacingLineVisible: !state.isRacingLineVisible })),
+  setTranslation: (translation) => set({ translation }),
+  setRotation: (rotation) => set({ rotation }),
 }));
 
 export default useStore;

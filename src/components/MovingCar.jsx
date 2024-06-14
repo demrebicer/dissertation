@@ -1,26 +1,37 @@
-import React, { useRef, useMemo } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import React, { useRef, useMemo, useEffect } from "react";
+import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import useStore from "../utils/store";
 
-function MovingCar({ path, duration }) {
+function MovingCar({ path, translation, rotation, duration }) {
   const carRef = useRef();
   const elapsedTimeRef = useRef(0);
   const { cameraMode } = useStore();
 
   const rotationAngleDegrees = 75;
   const rotationAngleRadians = rotationAngleDegrees * (Math.PI / 180);
-  const rotationMatrix = new THREE.Matrix4().makeRotationY(rotationAngleRadians);
+
+  const rotationMatrix = new THREE.Matrix4();
+  rotationMatrix.makeRotationY(rotationAngleRadians);
+
+  const customRotationMatrix = new THREE.Matrix4();
+  customRotationMatrix.makeRotationFromEuler(new THREE.Euler(
+    0,
+    THREE.MathUtils.degToRad(rotation.y),
+    0
+  ));
 
   const points = useMemo(
     () =>
       path.map((p) => {
         const vector = new THREE.Vector3(p.x - 47.5, p.y + 0, -p.z + 19.5);
         vector.applyMatrix4(rotationMatrix);
+        vector.applyMatrix4(customRotationMatrix);
+        vector.add(new THREE.Vector3(translation.x, translation.y, translation.z));
         return new THREE.Vector3(vector.x, vector.y, vector.z);
       }),
-    [path],
+    [path, rotationMatrix, customRotationMatrix, translation],
   );
 
   const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
