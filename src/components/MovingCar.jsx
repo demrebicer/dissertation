@@ -35,7 +35,7 @@ function MovingCar({ path, translation, rotation, duration }) {
   );
 
   const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
-  const spacedPoints = useMemo(() => curve.getSpacedPoints(2500), [curve]);
+  const spacedPoints = useMemo(() => curve.getSpacedPoints(1000), [curve]);
 
   useFrame((state, delta) => {
     elapsedTimeRef.current += delta;
@@ -48,9 +48,9 @@ function MovingCar({ path, translation, rotation, duration }) {
     carRef.current.position.copy(pointOnCurve);
 
     const forwardDirection = new THREE.Vector3().subVectors(nextPointOnCurve, pointOnCurve).normalize();
-    const lookAtQuaternion = new THREE.Quaternion();
-    lookAtQuaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), forwardDirection);
-    carRef.current.quaternion.slerp(lookAtQuaternion, 0.1);
+    const targetQuaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), forwardDirection);
+
+    carRef.current.quaternion.slerp(targetQuaternion, 0.05); // Daha yumuşak dönüş için slerp hızını düşürdük
 
     // Tekerlek dönüşü için hesaplama
     const wheelRotationSpeed = 10; // Tekerleklerin ne kadar hızlı döneceğini belirleyin
