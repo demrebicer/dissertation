@@ -31,6 +31,8 @@ const useStore = create((set) => ({
   setTranslation: (translation) => set({ translation }),
   setRotation: (rotation) => set({ rotation }),
   setCurrentLapTime: (time) => set({ currentLapTime: time }),
+  speedData: null,
+  setSpeedData: (data) => set({ speedData: data }),
 }));
 
 export default useStore;

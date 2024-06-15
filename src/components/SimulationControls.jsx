@@ -27,6 +27,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     setLapDuration,
     lapDuration,
     currentLapTime,
+    setSpeedData,
   } = useStore();
 
   const years = [
@@ -100,6 +101,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
         .then((response) => {
           setTelemetryData(response.data.telemetry);
           setLapDuration(response.data.lap_duration);
+          setSpeedData(response.data.speed);
           setLoading(false);
         })
         .catch((error) => {

@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useEffect } from "react";
+import React, { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
@@ -7,8 +7,8 @@ import useStore from "../utils/store";
 function MovingCar({ path, translation, rotation, duration }) {
   const carRef = useRef();
   const elapsedTimeRef = useRef(0);
-  const previousTRef = useRef(0); // To keep track of the previous t
-  const { cameraMode, setCurrentLapTime } = useStore();
+  const distanceTraveledRef = useRef(0);
+  const { cameraMode, setCurrentLapTime, speedData } = useStore();
 
   const rotationAngleDegrees = 75;
   const rotationAngleRadians = rotationAngleDegrees * (Math.PI / 180);
@@ -38,13 +38,52 @@ function MovingCar({ path, translation, rotation, duration }) {
   const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
   const spacedPoints = useMemo(() => curve.getSpacedPoints(2500), [curve]);
 
+  // Calculate distances between each point
+  const distances = useMemo(() => {
+    let totalDistance = 0;
+    return spacedPoints.map((point, index) => {
+      if (index === 0) return 0;
+      totalDistance += point.distanceTo(spacedPoints[index - 1]);
+      return totalDistance;
+    });
+  }, [spacedPoints]);
+
+  // Calculate total distance
+  const totalDistance = distances[distances.length - 1];
+
+  // Calculate the average speed needed to complete the lap in the given duration
+  const averageSpeed = totalDistance / duration;
+
+  // Adjust speed data to match the average speed
+  const adjustedSpeedData = useMemo(() => {
+    const totalSpeed = speedData.reduce((acc, speed) => acc + speed, 0);
+    const speedMultiplier = averageSpeed / (totalSpeed / speedData.length);
+    return speedData.map(speed => speed * speedMultiplier);
+  }, [speedData, averageSpeed]);
+
   useFrame((state, delta) => {
     elapsedTimeRef.current += delta;
 
-    const t = (elapsedTimeRef.current % duration) / duration;
-    const index = Math.floor(t * (spacedPoints.length - 1));
-    const pointOnCurve = spacedPoints[index];
-    const nextPointOnCurve = spacedPoints[(index + 1) % spacedPoints.length];
+    // Calculate the normalized time (0 to 1)
+    const normalizedTime = elapsedTimeRef.current / duration;
+
+    // Find the corresponding speed for the current normalized time
+    const speedIndex = Math.min(Math.floor(normalizedTime * adjustedSpeedData.length), adjustedSpeedData.length - 1);
+    const currentSpeed = adjustedSpeedData[speedIndex];
+
+    // Calculate the distance traveled in this frame
+    const distanceTraveledInFrame = currentSpeed * delta;
+    distanceTraveledRef.current += distanceTraveledInFrame;
+
+    // Make sure we don't exceed the total distance
+    const distanceTraveled = Math.min(distanceTraveledRef.current, totalDistance);
+
+    // Find the point on the curve corresponding to the total distance traveled
+    let pointIndex = distances.findIndex((distance) => distance >= distanceTraveled);
+    if (pointIndex === -1) pointIndex = distances.length - 1;
+
+    const pointOnCurve = spacedPoints[pointIndex];
+    const nextPointOnCurve = spacedPoints[(pointIndex + 1) % spacedPoints.length];
 
     carRef.current.position.copy(pointOnCurve);
 
@@ -54,7 +93,7 @@ function MovingCar({ path, translation, rotation, duration }) {
     carRef.current.quaternion.slerp(targetQuaternion, 0.1); // Daha yumuşak dönüş için slerp hızını düşürdük
 
     // Tekerlek dönüşü için hesaplama
-    const wheelRotationSpeed = 10; // Tekerleklerin ne kadar hızlı döneceğini belirleyin
+    const wheelRotationSpeed = currentSpeed / 10; // Tekerleklerin ne kadar hızlı döneceğini belirleyin
     const wheelRotation = delta * wheelRotationSpeed;
 
     const frontRightWheel = carRef.current.getObjectByName("Front_Right");
@@ -89,12 +128,11 @@ function MovingCar({ path, translation, rotation, duration }) {
     // Update the current lap time
     setCurrentLapTime(elapsedTimeRef.current);
 
-    // Reset the timer when a lap is completed
-    if (t < previousTRef.current) {
+    // Reset the timer and distance when a lap is completed
+    if (normalizedTime >= 1) {
       elapsedTimeRef.current = 0;
+      distanceTraveledRef.current = 0;
     }
-
-    previousTRef.current = t;
   });
 
   const gltf = useGLTF("/assets/simplecar.glb", true);
