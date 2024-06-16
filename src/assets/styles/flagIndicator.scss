@@ -1,0 +1,100 @@
+@import "../styles/fonts.scss";
+
+@keyframes slideDown {
+  0% {
+    top: -100px;
+    opacity: 0;
+  }
+  100% {
+    top: 0;
+    opacity: 1;
+  }
+}
+
+.flag-container {
+  position: absolute;
+  top: -100px; // Animasyonun başlaması için başlangıç pozisyonu
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  opacity: 0; // Başlangıçta görünmez
+
+  &.visible {
+    animation: slideDown 0.5s ease-out forwards; // Animasyon tanımı
+  }
+
+  &.red .flag-frame .flag-icon {
+    background-color: #ff5a5a; // Red flag background color
+  }
+
+  &.yellow .flag-frame .flag-icon {
+    background-color: #ffd700; // Yellow flag background color
+  }
+
+  &.green .flag-frame .flag-icon {
+    background-color: #00ff00; // Green flag background color
+  }
+
+  &.safety-car .flag-frame .flag-icon {
+    background-color: #ff8c00; // Safety car flag background color
+  }
+
+  &.virtual-safety-car .flag-frame .flag-icon {
+    background-color: #1e90ff; // Virtual safety car flag background color
+  }
+
+  &.virtual-safety-car-ending .flag-frame .flag-icon {
+    background-color: #ff69b4; // Virtual safety car ending flag background color
+  }
+
+  .flag-frame {
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+
+    .flag-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+    }
+
+    .flag-text-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.7); // Black transparent background for text
+      padding: 10px 20px; // Adjusted padding for more space on sides
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+
+      .flag-text {
+        color: #fff;
+        font-size: 18px;
+        margin-left: 10px;
+        font-family: "Formula1-Regular", sans-serif; // Apply the Formula1-Regular font
+      }
+    }
+  }
+}
+
+// SCSS to dynamically adjust heights
+$icon-size: 50px;
+
+.flag-container {
+  .flag-frame {
+    .flag-icon {
+      height: $icon-size;
+      width: $icon-size;
+    }
+
+    .flag-text-container {
+      height: $icon-size;
+    }
+  }
+}

@@ -17,11 +17,7 @@ function MovingCar({ path, translation, rotation, duration }) {
   rotationMatrix.makeRotationY(rotationAngleRadians);
 
   const customRotationMatrix = new THREE.Matrix4();
-  customRotationMatrix.makeRotationFromEuler(new THREE.Euler(
-    0,
-    THREE.MathUtils.degToRad(rotation.y),
-    0
-  ));
+  customRotationMatrix.makeRotationFromEuler(new THREE.Euler(0, THREE.MathUtils.degToRad(rotation.y), 0));
 
   const points = useMemo(
     () =>
@@ -58,7 +54,7 @@ function MovingCar({ path, translation, rotation, duration }) {
   const adjustedSpeedData = useMemo(() => {
     const totalSpeed = speedData.reduce((acc, speed) => acc + speed, 0);
     const speedMultiplier = averageSpeed / (totalSpeed / speedData.length);
-    return speedData.map(speed => speed * speedMultiplier);
+    return speedData.map((speed) => speed * speedMultiplier);
   }, [speedData, averageSpeed]);
 
   useFrame((state, delta) => {

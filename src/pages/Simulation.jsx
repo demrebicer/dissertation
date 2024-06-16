@@ -33,12 +33,10 @@ function Simulation() {
         <OrbitControls enabled={cameraMode === "free"} />
         <axesHelper args={[20]} />
 
-        {telemetryData && <MovingCar path={points} translation={translation} rotation={rotation} duration={30} />}
+        {telemetryData && <MovingCar path={points} translation={translation} rotation={rotation} duration={lapDuration} />}
         <RaceTrack />
         <Ground />
-        {telemetryData && isRacingLineVisible && (
-          <RacingLine points={points} translation={translation} rotation={rotation} />
-        )}
+        {telemetryData && isRacingLineVisible && <RacingLine points={points} translation={translation} rotation={rotation} />}
       </Canvas>
     </div>
   );

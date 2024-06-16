@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import useStore from "../utils/store";
 import axios from "axios";
 import "../assets/styles/simulationControls.scss";
+import FlagIndicator from "./FlagIndicator";
 
 function SimulationControls({ translation, setTranslation, rotation, setRotation }) {
   const {
@@ -29,6 +30,10 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     currentLapTime,
     setSpeedData,
   } = useStore();
+
+  const [flags, setFlags] = useState([]);
+  const [currentFlag, setCurrentFlag] = useState(null);
+  const [speedMultiplier, setSpeedMultiplier] = useState(4); // Add this line
 
   const years = [
     { value: 2018, label: 2018 },
@@ -99,9 +104,16 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
       axios
         .get(`http://localhost:8000/telemetry/${selectedYear.value}/${selectedDriver.value}/${selectedLap.value}`)
         .then((response) => {
-          setTelemetryData(response.data.telemetry);
-          setLapDuration(response.data.lap_duration);
+          const telemetryData = response.data.telemetry;
+          setTelemetryData(telemetryData);
+          setLapDuration(response.data.lap_duration / speedMultiplier); // Adjust lap duration
           setSpeedData(response.data.speed);
+          setFlags(response.data.flags.map(flag => ({
+            ...flag,
+            start_time: flag.start_time / speedMultiplier,
+            end_time: flag.end_time / speedMultiplier
+          }))); // Adjust flag times
+
           setLoading(false);
         })
         .catch((error) => {
@@ -109,7 +121,41 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           setLoading(false);
         });
     }
-  }, [selectedYear, selectedDriver, selectedLap, setTelemetryData, setLoading]);
+  }, [selectedYear, selectedDriver, selectedLap, setTelemetryData, setLoading, setLapDuration, setSpeedData, speedMultiplier]); // Add speedMultiplier as a dependency
+
+  // Determine the current flag based on the current lap time
+  useEffect(() => {
+    const determineCurrentFlag = (flags, currentTime) => {
+      const flag = flags.find((flag) => currentTime >= flag.start_time && currentTime <= flag.end_time);
+
+      if (flag) {
+        switch (flag.flag) {
+          case "1":
+            return "green";
+          case "2":
+            return "yellow";
+          case "4":
+            return "safety-car";
+          case "5":
+            return "red";
+          case "6":
+            return "virtual-safety-car";
+          case "7":
+            return "virtual-safety-car-ending";
+          default:
+            return null;
+        }
+      }
+      return null;
+    };
+
+    if (flags.length > 0) {
+      const currentFlag = determineCurrentFlag(flags, currentLapTime);
+      setCurrentFlag(currentFlag);
+    } else {
+      setCurrentFlag(null);
+    }
+  }, [flags, currentLapTime]);
 
   const resetTranslationX = () => setTranslation((prev) => ({ ...prev, x: 0 }));
   const resetTranslationZ = () => setTranslation((prev) => ({ ...prev, z: 0 }));
@@ -154,10 +200,18 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           value={selectedLap}
         />
         <button onClick={toggleRacingLineVisibility}>Toggle Racing Line</button>
+        {/* <input
+          type="number"
+          value={speedMultiplier}
+          onChange={(e) => setSpeedMultiplier(e.target.value)}
+          placeholder="Speed Multiplier"
+        /> Add this input */}
       </div>
       <div className="lap-timer">
         <span>{formatLapTime(currentLapTime)}</span>
       </div>
+
+      {currentFlag ? <FlagIndicator type={currentFlag} /> : null}
     </div>
   );
 }
