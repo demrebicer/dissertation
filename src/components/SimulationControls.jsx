@@ -213,16 +213,16 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
       </div>
 
       <div className="live-info">
-  <div className="info-box">
-    <span className="label">Lap Time</span>
-    <span className="value">{formatLapTime(currentLapTime)}</span>
-  </div>
+        <div className="info-box">
+          <span className="label">Lap Time</span>
+          <span className="value">{formatLapTime(currentLapTime)}</span>
+        </div>
 
-  <div className="info-box">
-    <span className="label">Speed</span>
-    <span className="value">{currentSpeed}</span>
-  </div>
-</div>
+        <div className="info-box">
+          <span className="label">Speed</span>
+          <span className="value">{currentSpeed}</span>
+        </div>
+      </div>
       {currentFlag ? <FlagIndicator type={currentFlag} /> : null}
     </div>
   );

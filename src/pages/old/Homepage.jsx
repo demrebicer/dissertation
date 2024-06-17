@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
-import Select from 'react-select';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import FullPageLoader from '../../components/FullPageLoader';
+import React, { useEffect } from "react";
+import Select from "react-select";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import FullPageLoader from "../../components/FullPageLoader";
 import "../assets/styles/homepage.scss";
 import useStore from "../../utils/store";
 
@@ -41,9 +41,10 @@ const Homepage = () => {
   useEffect(() => {
     if (selectedYear) {
       setLoading(true);
-      axios.get(`http://localhost:8000/drivers/${selectedYear.value}`)
-        .then(response => {
-          const driverOptions = response.data.map(driver => ({ value: driver, label: driver }));
+      axios
+        .get(`http://localhost:8000/drivers/${selectedYear.value}`)
+        .then((response) => {
+          const driverOptions = response.data.map((driver) => ({ value: driver, label: driver }));
           setDrivers(driverOptions);
           setSelectedDriver(null);
           setSelectedLap(null);
@@ -51,8 +52,8 @@ const Homepage = () => {
           setIsLapSelectDisabled(true);
           setLoading(false);
         })
-        .catch(error => {
-          console.error('Error fetching drivers:', error);
+        .catch((error) => {
+          console.error("Error fetching drivers:", error);
           setIsDriverSelectDisabled(true);
           setIsLapSelectDisabled(true);
           setLoading(false);
@@ -70,16 +71,17 @@ const Homepage = () => {
   useEffect(() => {
     if (selectedYear && selectedDriver) {
       setLoading(true);
-      axios.get(`http://localhost:8000/laps/${selectedYear.value}/${selectedDriver.value}`)
-        .then(response => {
-          const lapOptions = response.data.map(lap => ({ value: lap, label: `Lap ${lap}` }));
+      axios
+        .get(`http://localhost:8000/laps/${selectedYear.value}/${selectedDriver.value}`)
+        .then((response) => {
+          const lapOptions = response.data.map((lap) => ({ value: lap, label: `Lap ${lap}` }));
           setLaps(lapOptions);
           setSelectedLap(null);
           setIsLapSelectDisabled(false);
           setLoading(false);
         })
-        .catch(error => {
-          console.error('Error fetching laps:', error);
+        .catch((error) => {
+          console.error("Error fetching laps:", error);
           setIsLapSelectDisabled(true);
           setLoading(false);
         });
@@ -94,18 +96,19 @@ const Homepage = () => {
     if (selectedYear && selectedDriver && selectedLap) {
       setLoading(true);
       const url = `http://localhost:8000/telemetry/${selectedYear.value}/${selectedDriver.value}/${selectedLap.value}`;
-      axios.get(url)
-        .then(response => {
+      axios
+        .get(url)
+        .then((response) => {
           setTelemetryData(response.data);
           setLoading(false);
-          navigate('/simulation');
+          navigate("/simulation");
         })
-        .catch(error => {
-          console.error('Error fetching telemetry data:', error);
+        .catch((error) => {
+          console.error("Error fetching telemetry data:", error);
           setLoading(false);
         });
     } else {
-      console.log('Please select a year, driver, and lap to run the simulation.');
+      console.log("Please select a year, driver, and lap to run the simulation.");
     }
   };
 
@@ -113,28 +116,28 @@ const Homepage = () => {
     <div className="overlay">
       {loading && <FullPageLoader />}
       <div className="container">
-        <Select 
-          className="select-box" 
+        <Select
+          className="select-box"
           classNamePrefix="select"
-          options={years} 
-          placeholder="Select Year" 
+          options={years}
+          placeholder="Select Year"
           onChange={setSelectedYear}
           value={selectedYear}
         />
-        <Select 
-          className="select-box" 
+        <Select
+          className="select-box"
           classNamePrefix="select"
-          options={drivers} 
-          placeholder="Select Driver" 
+          options={drivers}
+          placeholder="Select Driver"
           onChange={setSelectedDriver}
           isDisabled={isDriverSelectDisabled}
           value={selectedDriver}
         />
-        <Select 
-          className="select-box" 
+        <Select
+          className="select-box"
           classNamePrefix="select"
-          options={laps} 
-          placeholder="Select Lap" 
+          options={laps}
+          placeholder="Select Lap"
           onChange={setSelectedLap}
           isDisabled={isLapSelectDisabled}
           value={selectedLap}

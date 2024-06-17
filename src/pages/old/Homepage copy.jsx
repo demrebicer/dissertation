@@ -93,7 +93,6 @@ function Homepage() {
   function RaceTrackModel() {
     const gltf = useGLTF("/assets/track.glb", true); // Modelin yolu
 
-    
     return <primitive ref={modelRef} object={gltf.scene} />;
   }
 
@@ -146,19 +145,13 @@ function Homepage() {
     return (
       <mesh position={[0, -50.5, 0]} receiveShadow>
         <boxGeometry attach="geometry" args={[1000, 100, 1000]} />
-        <meshStandardMaterial
-          attach="material"
-          color="#5C875A"
-          flatShading
-          roughness={1}
-          metalness={0}
-        />
+        <meshStandardMaterial attach="material" color="#5C875A" flatShading roughness={1} metalness={0} />
       </mesh>
     );
   }
 
   //Create a timer component hud text must like 00:00.000
-  function Timer({duration}) {
+  function Timer({ duration }) {
     return (
       <div className="timer">
         <h1 className="text">{lapTime}</h1>

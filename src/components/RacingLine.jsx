@@ -12,11 +12,7 @@ function RacingLine({ points, translation, rotation }) {
   rotationMatrix.makeRotationY(rotationAngleRadians);
 
   const customRotationMatrix = new THREE.Matrix4();
-  customRotationMatrix.makeRotationFromEuler(new THREE.Euler(
-    0,
-    THREE.MathUtils.degToRad(rotation.y),
-    0
-  ));
+  customRotationMatrix.makeRotationFromEuler(new THREE.Euler(0, THREE.MathUtils.degToRad(rotation.y), 0));
 
   const rotatedVertices = useMemo(
     () =>
@@ -27,7 +23,7 @@ function RacingLine({ points, translation, rotation }) {
         vector.add(new THREE.Vector3(translation.x, translation.y, translation.z));
         return vector;
       }),
-    [points, rotationMatrix, customRotationMatrix, translation]
+    [points, rotationMatrix, customRotationMatrix, translation],
   );
 
   return <Line ref={lineRef} points={rotatedVertices} color={"red"} lineWidth={5} />;
