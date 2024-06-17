@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from "react";
+import React, { useRef, useMemo, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
@@ -115,8 +115,8 @@ function MovingCar({ path, translation, rotation, duration }) {
 
     if (cameraMode === "follow" && carRef.current) {
       const cameraPosition = new THREE.Vector3().copy(carRef.current.position);
-      cameraPosition.y += 10;
-      cameraPosition.z -= 20;
+      cameraPosition.y += 3; //5
+      cameraPosition.z -= 5; //10
       state.camera.position.copy(cameraPosition);
       state.camera.lookAt(carRef.current.position);
     }
@@ -132,6 +132,30 @@ function MovingCar({ path, translation, rotation, duration }) {
   });
 
   const gltf = useGLTF("/assets/simplecar.glb", true);
+
+  // Create the emissive material
+  const brakeLightMaterial = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: new THREE.Color("darkred"),
+        emissive: new THREE.Color("darkred"),
+        emissiveIntensity: 3,
+      }),
+    []
+  );
+
+  useEffect(() => {
+    const brakeLightLeft = carRef.current.getObjectByName("Brake_Light_Left");
+    const brakeLightRight = carRef.current.getObjectByName("Brake_Light_Right");
+
+    if (brakeLightLeft) {
+      brakeLightLeft.material = brakeLightMaterial;
+    }
+
+    if (brakeLightRight) {
+      brakeLightRight.material = brakeLightMaterial;
+    }
+  }, [brakeLightMaterial]);
 
   return <primitive ref={carRef} object={gltf.scene} scale={0.5} />;
 }
