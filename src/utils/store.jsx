@@ -33,6 +33,8 @@ const useStore = create((set) => ({
   setCurrentLapTime: (time) => set({ currentLapTime: time }),
   speedData: null,
   setSpeedData: (data) => set({ speedData: data }),
+  brakeData: null,
+  setBrakeData: (data) => set({ brakeData: data }),
 }));
 
 export default useStore;

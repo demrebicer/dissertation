@@ -29,6 +29,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     lapDuration,
     currentLapTime,
     setSpeedData,
+    setBrakeData,
   } = useStore();
 
   const [flags, setFlags] = useState([]);
@@ -113,7 +114,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
             start_time: flag.start_time / speedMultiplier,
             end_time: flag.end_time / speedMultiplier
           }))); // Adjust flag times
-
+          setBrakeData(response.data.brake);
           setLoading(false);
         })
         .catch((error) => {

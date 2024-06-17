@@ -8,7 +8,7 @@ function MovingCar({ path, translation, rotation, duration }) {
   const carRef = useRef();
   const elapsedTimeRef = useRef(0);
   const distanceTraveledRef = useRef(0);
-  const { cameraMode, setCurrentLapTime, speedData } = useStore();
+  const { cameraMode, setCurrentLapTime, speedData, brakeData } = useStore();
 
   const rotationAngleDegrees = 75;
   const rotationAngleRadians = rotationAngleDegrees * (Math.PI / 180);
@@ -56,6 +56,29 @@ function MovingCar({ path, translation, rotation, duration }) {
     const speedMultiplier = averageSpeed / (totalSpeed / speedData.length);
     return speedData.map((speed) => speed * speedMultiplier);
   }, [speedData, averageSpeed]);
+
+  const brakeLightMaterial = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: new THREE.Color("darkred"),
+        emissive: new THREE.Color("darkred"),
+        emissiveIntensity: 0,
+      }),
+    []
+  );
+
+  useEffect(() => {
+    const brakeLightLeft = carRef.current.getObjectByName("Brake_Light_Left");
+    const brakeLightRight = carRef.current.getObjectByName("Brake_Light_Right");
+
+    if (brakeLightLeft) {
+      brakeLightLeft.material = brakeLightMaterial;
+    }
+
+    if (brakeLightRight) {
+      brakeLightRight.material = brakeLightMaterial;
+    }
+  }, [brakeLightMaterial]);
 
   useFrame((state, delta) => {
     elapsedTimeRef.current += delta;
@@ -124,6 +147,10 @@ function MovingCar({ path, translation, rotation, duration }) {
     // Update the current lap time
     setCurrentLapTime(elapsedTimeRef.current);
 
+    // Update brake lights based on brakeData
+    const brakeIntensity = brakeData[speedIndex] ? 3 : 0;
+    brakeLightMaterial.emissiveIntensity = brakeIntensity;
+
     // Reset the timer and distance when a lap is completed
     if (normalizedTime >= 1) {
       elapsedTimeRef.current = 0;
@@ -132,30 +159,6 @@ function MovingCar({ path, translation, rotation, duration }) {
   });
 
   const gltf = useGLTF("/assets/simplecar.glb", true);
-
-  // Create the emissive material
-  const brakeLightMaterial = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: new THREE.Color("darkred"),
-        emissive: new THREE.Color("darkred"),
-        emissiveIntensity: 3,
-      }),
-    []
-  );
-
-  useEffect(() => {
-    const brakeLightLeft = carRef.current.getObjectByName("Brake_Light_Left");
-    const brakeLightRight = carRef.current.getObjectByName("Brake_Light_Right");
-
-    if (brakeLightLeft) {
-      brakeLightLeft.material = brakeLightMaterial;
-    }
-
-    if (brakeLightRight) {
-      brakeLightRight.material = brakeLightMaterial;
-    }
-  }, [brakeLightMaterial]);
 
   return <primitive ref={carRef} object={gltf.scene} scale={0.5} />;
 }
