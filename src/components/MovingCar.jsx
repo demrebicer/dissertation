@@ -8,7 +8,7 @@ function MovingCar({ path, translation, rotation, duration }) {
   const carRef = useRef();
   const elapsedTimeRef = useRef(0);
   const distanceTraveledRef = useRef(0);
-  const { cameraMode, setCurrentLapTime, speedData, brakeData } = useStore();
+  const { cameraMode, setCurrentLapTime, speedData, brakeData, setCurrentSpeed } = useStore();
 
   const rotationAngleDegrees = 75;
   const rotationAngleRadians = rotationAngleDegrees * (Math.PI / 180);
@@ -64,7 +64,7 @@ function MovingCar({ path, translation, rotation, duration }) {
         emissive: new THREE.Color("darkred"),
         emissiveIntensity: 0,
       }),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -89,6 +89,9 @@ function MovingCar({ path, translation, rotation, duration }) {
     // Find the corresponding speed for the current normalized time
     const speedIndex = Math.min(Math.floor(normalizedTime * adjustedSpeedData.length), adjustedSpeedData.length - 1);
     const currentSpeed = adjustedSpeedData[speedIndex];
+
+    // Record the actual speed before any adjustments for rendering
+    setCurrentSpeed(speedData[speedIndex]);
 
     // Calculate the distance traveled in this frame
     const distanceTraveledInFrame = currentSpeed * delta;
@@ -138,8 +141,8 @@ function MovingCar({ path, translation, rotation, duration }) {
 
     if (cameraMode === "follow" && carRef.current) {
       const cameraPosition = new THREE.Vector3().copy(carRef.current.position);
-      cameraPosition.y += 3; //5
-      cameraPosition.z -= 5; //10
+      cameraPosition.y += 5; //5
+      cameraPosition.z -= 10; //10
       state.camera.position.copy(cameraPosition);
       state.camera.lookAt(carRef.current.position);
     }

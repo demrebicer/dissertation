@@ -30,6 +30,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     currentLapTime,
     setSpeedData,
     setBrakeData,
+    currentSpeed,
   } = useStore();
 
   const [flags, setFlags] = useState([]);
@@ -109,11 +110,13 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           setTelemetryData(telemetryData);
           setLapDuration(response.data.lap_duration / speedMultiplier); // Adjust lap duration
           setSpeedData(response.data.speed);
-          setFlags(response.data.flags.map(flag => ({
-            ...flag,
-            start_time: flag.start_time / speedMultiplier,
-            end_time: flag.end_time / speedMultiplier
-          }))); // Adjust flag times
+          setFlags(
+            response.data.flags.map((flag) => ({
+              ...flag,
+              start_time: flag.start_time / speedMultiplier,
+              end_time: flag.end_time / speedMultiplier,
+            })),
+          ); // Adjust flag times
           setBrakeData(response.data.brake);
           setLoading(false);
         })
@@ -208,10 +211,18 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           placeholder="Speed Multiplier"
         /> Add this input */}
       </div>
-      <div className="lap-timer">
-        <span>{formatLapTime(currentLapTime)}</span>
-      </div>
 
+      <div className="live-info">
+  <div className="info-box">
+    <span className="label">Lap Time</span>
+    <span className="value">{formatLapTime(currentLapTime)}</span>
+  </div>
+
+  <div className="info-box">
+    <span className="label">Speed</span>
+    <span className="value">{currentSpeed}</span>
+  </div>
+</div>
       {currentFlag ? <FlagIndicator type={currentFlag} /> : null}
     </div>
   );

@@ -35,6 +35,8 @@ const useStore = create((set) => ({
   setSpeedData: (data) => set({ speedData: data }),
   brakeData: null,
   setBrakeData: (data) => set({ brakeData: data }),
+  currentSpeed: 0,
+  setCurrentSpeed: (speed) => set({ currentSpeed: speed }),
 }));
 
 export default useStore;
