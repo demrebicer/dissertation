@@ -4,6 +4,7 @@ import useStore from "../utils/store";
 import axios from "axios";
 import "../assets/styles/simulationControls.scss";
 import FlagIndicator from "./FlagIndicator";
+import RacingLineControls from "./RacingLineControls";
 
 function SimulationControls({ translation, setTranslation, rotation, setRotation }) {
   const {
@@ -35,7 +36,8 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
 
   const [flags, setFlags] = useState([]);
   const [currentFlag, setCurrentFlag] = useState(null);
-  const [speedMultiplier, setSpeedMultiplier] = useState(4); // Add this line
+  const [speedMultiplier, setSpeedMultiplier] = useState(4);
+  const [showRacingLineControls, setShowRacingLineControls] = useState(false); // Add this line
 
   const years = [
     { value: 2018, label: 2018 },
@@ -125,9 +127,8 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           setLoading(false);
         });
     }
-  }, [selectedYear, selectedDriver, selectedLap, setTelemetryData, setLoading, setLapDuration, setSpeedData, speedMultiplier]); // Add speedMultiplier as a dependency
+  }, [selectedYear, selectedDriver, selectedLap, setTelemetryData, setLoading, setLapDuration, setSpeedData, speedMultiplier]);
 
-  // Determine the current flag based on the current lap time
   useEffect(() => {
     const determineCurrentFlag = (flags, currentTime) => {
       const flag = flags.find((flag) => currentTime >= flag.start_time && currentTime <= flag.end_time);
@@ -161,10 +162,6 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     }
   }, [flags, currentLapTime]);
 
-  const resetTranslationX = () => setTranslation((prev) => ({ ...prev, x: 0 }));
-  const resetTranslationZ = () => setTranslation((prev) => ({ ...prev, z: 0 }));
-  const resetRotationY = () => setRotation({ y: 0 });
-
   const formatLapTime = (duration) => {
     const minutes = Math.floor(duration / 60);
     const seconds = Math.floor(duration % 60);
@@ -174,6 +171,9 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
 
   return (
     <div>
+      {showRacingLineControls && (
+        <RacingLineControls translation={translation} setTranslation={setTranslation} rotation={rotation} setRotation={setRotation} />
+      )}
       <div className="controls">
         <button onClick={() => setCameraMode("free")}>Free Camera</button>
         <button onClick={() => setCameraMode("follow")}>Follow Camera</button>
@@ -204,6 +204,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           value={selectedLap}
         />
         <button onClick={toggleRacingLineVisibility}>Toggle Racing Line</button>
+        <button onClick={() => setShowRacingLineControls(!showRacingLineControls)}>Toggle Racing Line Controls</button>
         {/* <input
           type="number"
           value={speedMultiplier}
