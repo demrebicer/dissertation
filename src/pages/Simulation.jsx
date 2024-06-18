@@ -31,7 +31,7 @@ function Simulation() {
         <Environment files={EnvMap} background={"both"} />
         <ambientLight intensity={2} />
         <OrbitControls enabled={cameraMode === "free"} />
-        <axesHelper args={[20]} />
+        {/* <axesHelper args={[20]} /> */}
 
         {telemetryData && <MovingCar path={points} translation={translation} rotation={rotation} duration={lapDuration} />}
         <RaceTrack />
