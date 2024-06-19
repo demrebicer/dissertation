@@ -6,7 +6,7 @@ import "../assets/styles/simulationControls.scss";
 import FlagIndicator from "./FlagIndicator";
 import RacingLineControls from "./RacingLineControls";
 
-function SimulationControls({ translation, setTranslation, rotation, setRotation }) {
+function SimulationControls({ translation, setTranslation, rotation, setRotation, scale, setScale }) {
   const {
     selectedYear,
     setSelectedYear,
@@ -172,7 +172,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
   return (
     <div>
       {showRacingLineControls && (
-        <RacingLineControls translation={translation} setTranslation={setTranslation} rotation={rotation} setRotation={setRotation} />
+        <RacingLineControls translation={translation} setTranslation={setTranslation} rotation={rotation} setRotation={setRotation} scale={scale} setScale={setScale}/>
       )}
       <div className="controls">
         <button onClick={() => setCameraMode("free")}>Free Camera</button>

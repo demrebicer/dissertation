@@ -4,7 +4,7 @@ import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import useStore from "../utils/store";
 
-function MovingCar({ path, translation, rotation, duration }) {
+function MovingCar({ path, translation, rotation, duration, scale }) {
   const carRef = useRef();
   const elapsedTimeRef = useRef(0);
   const distanceTraveledRef = useRef(0);
@@ -22,7 +22,7 @@ function MovingCar({ path, translation, rotation, duration }) {
   const points = useMemo(
     () =>
       path.map((p) => {
-        const vector = new THREE.Vector3(p.x - 47.5, p.y + 0, -p.z + 19.5);
+        const vector = new THREE.Vector3(p.x * scale - 47.5, p.y * scale + 0, -p.z * scale + 19.5);
         vector.applyMatrix4(rotationMatrix);
         vector.applyMatrix4(customRotationMatrix);
         vector.add(new THREE.Vector3(translation.x, translation.y, translation.z));

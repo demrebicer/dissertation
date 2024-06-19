@@ -22,21 +22,22 @@ function Simulation() {
   // State for translation and rotation controls
   const [translation, setTranslation] = useState({ x: 0, y: 0, z: 0 });
   const [rotation, setRotation] = useState({ y: 0 });
+  const [scale, setScale] = useState(1);
 
   return (
     <div className="homepage">
       {loading && <FullPageLoader />}
-      <SimulationControls translation={translation} setTranslation={setTranslation} rotation={rotation} setRotation={setRotation} />
+      <SimulationControls translation={translation} setTranslation={setTranslation} rotation={rotation} setRotation={setRotation} scale={scale} setScale={setScale}/>
       <Canvas camera={{ position: [0, 100, 130], fov: 50 }}>
         <Environment files={EnvMap} background={"both"} />
         <ambientLight intensity={2} />
         <OrbitControls enabled={cameraMode === "free"} />
         {/* <axesHelper args={[20]} /> */}
 
-        {telemetryData && <MovingCar path={points} translation={translation} rotation={rotation} duration={lapDuration} />}
+        {telemetryData && <MovingCar path={points} translation={translation} rotation={rotation} duration={lapDuration} scale={scale}/>}
         <RaceTrack />
         <Ground />
-        {telemetryData && isRacingLineVisible && <RacingLine points={points} translation={translation} rotation={rotation} />}
+        {telemetryData && isRacingLineVisible && <RacingLine points={points} translation={translation} rotation={rotation} scale={scale} />}
       </Canvas>
     </div>
   );

@@ -1,8 +1,9 @@
-import React, { useMemo, useRef } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Line } from "@react-three/drei";
 import * as THREE from "three";
 
-function RacingLine({ points, translation, rotation }) {
+function RacingLine({ points, translation, rotation, scale }) {
+
   const lineRef = useRef();
 
   const rotationAngleDegrees = 74;
@@ -17,7 +18,7 @@ function RacingLine({ points, translation, rotation }) {
   const rotatedVertices = useMemo(
     () =>
       points.map((p) => {
-        const vector = new THREE.Vector3(p.x - 47.5, p.y + 0.1, -p.z + 19.5);
+        const vector = new THREE.Vector3(p.x * scale - 47.5, p.y * scale + 0.1, -p.z * scale + 19.5);
         vector.applyMatrix4(rotationMatrix);
         vector.applyMatrix4(customRotationMatrix);
         vector.add(new THREE.Vector3(translation.x, translation.y, translation.z));
