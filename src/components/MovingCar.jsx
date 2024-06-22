@@ -6,6 +6,7 @@ import useStore from "../utils/store";
 
 function MovingCar({ path, translation, rotation, duration, scale }) {
   const carRef = useRef();
+  const cameraRef = useRef();
   const elapsedTimeRef = useRef(0);
   const distanceTraveledRef = useRef(0);
   const { cameraMode, setCurrentLapTime, speedData, brakeData, setCurrentSpeed } = useStore();
@@ -80,6 +81,10 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
     }
   }, [brakeLightMaterial]);
 
+  function damp(current, target, lambda, delta) {
+    return current + (target - current) * (1 - Math.exp(-lambda * delta));
+  }
+
   useFrame((state, delta) => {
     elapsedTimeRef.current += delta;
 
@@ -139,12 +144,21 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
       backLeftWheel.rotateX(wheelRotation);
     }
 
-    if (cameraMode === "follow" && carRef.current) {
-      const cameraPosition = new THREE.Vector3().copy(carRef.current.position);
-      cameraPosition.y += 5; //5
-      cameraPosition.z -= 10; //10
-      state.camera.position.copy(cameraPosition);
-      state.camera.lookAt(carRef.current.position);
+    // Update the camera position and orientation to follow the path like the car
+    if (cameraMode === "follow" && cameraRef.current) {
+      const cameraOffset = 40; // Kameranın ne kadar geride kalacağını belirleyin
+      const cameraHeightOffset = 2; // Y ekseninde yukarı kaydırma
+      const cameraPointIndex = Math.max(0, (pointIndex - cameraOffset) % spacedPoints.length);
+      const cameraPoint = spacedPoints[cameraPointIndex];
+
+      // Kamera pozisyonunu lineer interpolasyon ile yumuşat
+      cameraRef.current.position.lerp(cameraPoint, 0.1);
+      // cameraRef.current.position.y = damp(cameraRef.current.position.y, cameraPoint.y + cameraHeightOffset, 5, delta);
+      cameraRef.current.position.y = cameraHeightOffset;
+
+      // Kameranın arabayı takip edecek şekilde bakmasını sağla
+      state.camera.position.lerp(cameraRef.current.position, 0.1);
+      state.camera.lookAt(carRef.current.position.x, cameraHeightOffset, carRef.current.position.z);
     }
 
     // Update the current lap time
@@ -163,7 +177,12 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
 
   const gltf = useGLTF("/assets/simplecar.glb", true);
 
-  return <primitive ref={carRef} object={gltf.scene} scale={0.5} />;
+  return (
+    <>
+      <primitive ref={carRef} object={gltf.scene} scale={0.5} />
+      <group ref={cameraRef} />
+    </>
+  );
 }
 
 export default MovingCar;

@@ -42,10 +42,11 @@ function Simulation() {
         ) : (
           <Sky sunPosition={[20, 50, 20]} />
         )}
+        <Sky sunPosition={[20, 50, 20]} />
         <ambientLight intensity={5} />
         <OrbitControls enabled={cameraMode === "free"} maxDistance={850} />
         {/* <axesHelper args={[20]} /> */}
-        {isRaining && <Rain />} {/* Yağmur efekti */}
+        {/* {isRaining && <Rain />} */}
         {telemetryData && <MovingCar path={points} translation={translation} rotation={rotation} duration={lapDuration} scale={scale} />}
         <RaceTrack />
         {/* <Ground /> */}
