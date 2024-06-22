@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Canvas } from "@react-three/fiber";
-import { Environment, OrbitControls } from "@react-three/drei";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Environment, OrbitControls, Sky } from "@react-three/drei";
 import "../assets/styles/simulation.scss";
 import * as THREE from "three";
 import axios from "axios";
@@ -13,9 +13,10 @@ import MovingCar from "../components/MovingCar";
 import Ground from "../components/Ground";
 import RaceTrack from "../components/RaceTrack";
 import RacingLine from "../components/RacingLine";
+import Rain from "../components/Rain";
 
 function Simulation() {
-  const { telemetryData, lapDuration, loading, cameraMode, isRacingLineVisible } = useStore();
+  const { telemetryData, lapDuration, loading, cameraMode, isRacingLineVisible, isRaining } = useStore();
 
   const points = useMemo(() => telemetryData?.map((p) => new THREE.Vector3(p[0], p[1], p[2])), [telemetryData]);
 
@@ -27,16 +28,27 @@ function Simulation() {
   return (
     <div className="homepage">
       {loading && <FullPageLoader />}
-      <SimulationControls translation={translation} setTranslation={setTranslation} rotation={rotation} setRotation={setRotation} scale={scale} setScale={setScale}/>
+      <SimulationControls
+        translation={translation}
+        setTranslation={setTranslation}
+        rotation={rotation}
+        setRotation={setRotation}
+        scale={scale}
+        setScale={setScale}
+      />
       <Canvas camera={{ position: [0, 100, 130], fov: 50 }}>
-        <Environment files={EnvMap} background={"both"} />
-        <ambientLight intensity={2} />
-        <OrbitControls enabled={cameraMode === "free"} />
+        {isRaining ? (
+          <Sky sunPosition={[5, 1, 8]} inclination={0.6} azimuth={0.25} />
+        ) : (
+          <Sky sunPosition={[20, 50, 20]} />
+        )}
+        <ambientLight intensity={5} />
+        <OrbitControls enabled={cameraMode === "free"} maxDistance={850} />
         {/* <axesHelper args={[20]} /> */}
-
-        {telemetryData && <MovingCar path={points} translation={translation} rotation={rotation} duration={lapDuration} scale={scale}/>}
+        {isRaining && <Rain />} {/* Yağmur efekti */}
+        {telemetryData && <MovingCar path={points} translation={translation} rotation={rotation} duration={lapDuration} scale={scale} />}
         <RaceTrack />
-        <Ground />
+        {/* <Ground /> */}
         {telemetryData && isRacingLineVisible && <RacingLine points={points} translation={translation} rotation={rotation} scale={scale} />}
       </Canvas>
     </div>

@@ -37,6 +37,14 @@ const useStore = create((set) => ({
   setBrakeData: (data) => set({ brakeData: data }),
   currentSpeed: 0,
   setCurrentSpeed: (speed) => set({ currentSpeed: speed }),
+  selectedType: null,
+  setSelectedType: (type) => set({ selectedType: type}),
+  isYearSelectDisabled: true,
+  setIsYearSelectDisabled: (isDisabled) => set({ isYearSelectDisabled: isDisabled }),
+  isRaining: false,
+  setIsRaining: (isRaining) => set({ isRaining }),
+  rpmData: null,
+  setRpmData: (data) => set({ rpmData: data }),
 }));
 
 export default useStore;

@@ -32,11 +32,17 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     setSpeedData,
     setBrakeData,
     currentSpeed,
+    selectedType,
+    setSelectedType,
+    isYearSelectDisabled,
+    setIsYearSelectDisabled,
+    setIsRaining,
+    setRpmData,
   } = useStore();
 
   const [flags, setFlags] = useState([]);
   const [currentFlag, setCurrentFlag] = useState(null);
-  const [speedMultiplier, setSpeedMultiplier] = useState(4);
+  const [speedMultiplier, setSpeedMultiplier] = useState(3);
   const [showRacingLineControls, setShowRacingLineControls] = useState(false); // Add this line
 
   const years = [
@@ -48,11 +54,33 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     { value: 2023, label: 2023 },
   ];
 
+  const typeOptions = [
+    { value: "race", label: "Race"},
+    { value: "qualifying", label: "Qualifying"},
+  ];
+
+  useEffect(() => {
+    //Reset year, driver, lap, and flags when changing type
+    setSelectedYear(null);
+    setSelectedDriver(null);
+    setSelectedLap(null);
+    setFlags([]);
+    setDrivers([]);
+    setLaps([]);
+    setIsDriverSelectDisabled(true);
+    setIsLapSelectDisabled(true);
+    setIsYearSelectDisabled(true);
+
+    if (selectedType) {
+      setIsYearSelectDisabled(false);
+    }
+  }, [selectedType]);
+
   useEffect(() => {
     if (selectedYear) {
       setLoading(true);
       axios
-        .get(`http://localhost:8000/drivers/${selectedYear.value}`)
+        .get(`http://localhost:8000/drivers/${selectedYear.value}/${selectedType.value}`)
         .then((response) => {
           const driverOptions = response.data.map((driver) => ({ value: driver, label: driver }));
           setDrivers(driverOptions);
@@ -82,7 +110,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     if (selectedYear && selectedDriver) {
       setLoading(true);
       axios
-        .get(`http://localhost:8000/laps/${selectedYear.value}/${selectedDriver.value}`)
+        .get(`http://localhost:8000/laps/${selectedYear.value}/${selectedType.value}/${selectedDriver.value}`)
         .then((response) => {
           const lapOptions = response.data.map((lap) => ({ value: lap, label: `Lap ${lap}` }));
           setLaps(lapOptions);
@@ -106,7 +134,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     if (selectedYear && selectedDriver && selectedLap) {
       setLoading(true);
       axios
-        .get(`http://localhost:8000/telemetry/${selectedYear.value}/${selectedDriver.value}/${selectedLap.value}`)
+        .get(`http://localhost:8000/telemetry/${selectedYear.value}/${selectedType.value}/${selectedDriver.value}/${selectedLap.value}`)
         .then((response) => {
           const telemetryData = response.data.telemetry;
           setTelemetryData(telemetryData);
@@ -120,6 +148,8 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
             })),
           ); // Adjust flag times
           setBrakeData(response.data.brake);
+          setRpmData(response.data.rpm);
+          setIsRaining(response.data.is_rain);
           setLoading(false);
         })
         .catch((error) => {
@@ -180,9 +210,18 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
         <Select
           className="select-box"
           classNamePrefix="select"
+          options={typeOptions}
+          placeholder="Select Type"
+          onChange={setSelectedType}
+          value={selectedType}
+        />
+        <Select
+          className="select-box"
+          classNamePrefix="select"
           options={years}
           placeholder="Select Year"
           onChange={setSelectedYear}
+          isDisabled={isYearSelectDisabled}
           value={selectedYear}
         />
         <Select
@@ -223,6 +262,8 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           <span className="label">Speed</span>
           <span className="value">{currentSpeed}</span>
         </div>
+
+        
       </div>
       {currentFlag ? <FlagIndicator type={currentFlag} /> : null}
     </div>
