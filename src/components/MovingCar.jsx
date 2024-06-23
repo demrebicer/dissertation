@@ -4,6 +4,12 @@ import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import useStore from "../utils/store";
 
+const rotationAngleDegrees = 75;
+const rotationAngleRadians = rotationAngleDegrees * (Math.PI / 180);
+
+const rotationMatrix = new THREE.Matrix4();
+rotationMatrix.makeRotationY(rotationAngleRadians);
+
 function MovingCar({ path, translation, rotation, duration, scale }) {
   const carRef = useRef();
   const cameraRef = useRef();
@@ -11,14 +17,11 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
   const distanceTraveledRef = useRef(0);
   const { cameraMode, setCurrentLapTime, speedData, brakeData, setCurrentSpeed } = useStore();
 
-  const rotationAngleDegrees = 75;
-  const rotationAngleRadians = rotationAngleDegrees * (Math.PI / 180);
-
-  const rotationMatrix = new THREE.Matrix4();
-  rotationMatrix.makeRotationY(rotationAngleRadians);
-
-  const customRotationMatrix = new THREE.Matrix4();
-  customRotationMatrix.makeRotationFromEuler(new THREE.Euler(0, THREE.MathUtils.degToRad(rotation.y), 0));
+  const customRotationMatrix = useMemo(() => {
+    const matrix = new THREE.Matrix4();
+    matrix.makeRotationFromEuler(new THREE.Euler(0, THREE.MathUtils.degToRad(rotation.y), 0));
+    return matrix;
+  }, [rotation.y]);
 
   const points = useMemo(
     () =>
@@ -29,13 +32,12 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
         vector.add(new THREE.Vector3(translation.x, translation.y, translation.z));
         return new THREE.Vector3(vector.x, vector.y, vector.z);
       }),
-    [path, rotationMatrix, customRotationMatrix, translation],
+    [path, customRotationMatrix, translation, scale]
   );
 
   const curve = useMemo(() => new THREE.CatmullRomCurve3(points), [points]);
-  const spacedPoints = useMemo(() => curve.getSpacedPoints(5000), [curve]);
+  const spacedPoints = useMemo(() => curve.getSpacedPoints(15000), [curve]);
 
-  // Calculate distances between each point
   const distances = useMemo(() => {
     let totalDistance = 0;
     return spacedPoints.map((point, index) => {
@@ -45,28 +47,23 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
     });
   }, [spacedPoints]);
 
-  // Calculate total distance
   const totalDistance = distances[distances.length - 1];
-
-  // Calculate the average speed needed to complete the lap in the given duration
   const averageSpeed = totalDistance / duration;
 
-  // Adjust speed data to match the average speed
   const adjustedSpeedData = useMemo(() => {
     const totalSpeed = speedData.reduce((acc, speed) => acc + speed, 0);
     const speedMultiplier = averageSpeed / (totalSpeed / speedData.length);
     return speedData.map((speed) => speed * speedMultiplier);
   }, [speedData, averageSpeed]);
 
-  const brakeLightMaterial = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: new THREE.Color("darkred"),
-        emissive: new THREE.Color("darkred"),
-        emissiveIntensity: 0,
-      }),
-    [],
-  );
+  const brakeLightMaterial = useMemo(() => {
+    const material = new THREE.MeshStandardMaterial({
+      color: new THREE.Color("darkred"),
+      emissive: new THREE.Color("darkred"),
+      emissiveIntensity: 0,
+    });
+    return material;
+  }, []);
 
   useEffect(() => {
     const brakeLightLeft = carRef.current.getObjectByName("Brake_Light_Left");
@@ -79,6 +76,16 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
     if (brakeLightRight) {
       brakeLightRight.material = brakeLightMaterial;
     }
+
+    return () => {
+      if (brakeLightLeft) {
+        brakeLightLeft.material.dispose();
+      }
+
+      if (brakeLightRight) {
+        brakeLightRight.material.dispose();
+      }
+    };
   }, [brakeLightMaterial]);
 
   function damp(current, target, lambda, delta) {
@@ -88,24 +95,16 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
   useFrame((state, delta) => {
     elapsedTimeRef.current += delta;
 
-    // Calculate the normalized time (0 to 1)
     const normalizedTime = elapsedTimeRef.current / duration;
-
-    // Find the corresponding speed for the current normalized time
     const speedIndex = Math.min(Math.floor(normalizedTime * adjustedSpeedData.length), adjustedSpeedData.length - 1);
     const currentSpeed = adjustedSpeedData[speedIndex];
 
-    // Record the actual speed before any adjustments for rendering
     setCurrentSpeed(speedData[speedIndex]);
 
-    // Calculate the distance traveled in this frame
     const distanceTraveledInFrame = currentSpeed * delta;
     distanceTraveledRef.current += distanceTraveledInFrame;
-
-    // Make sure we don't exceed the total distance
     const distanceTraveled = Math.min(distanceTraveledRef.current, totalDistance);
 
-    // Find the point on the curve corresponding to the total distance traveled
     let pointIndex = distances.findIndex((distance) => distance >= distanceTraveled);
     if (pointIndex === -1) pointIndex = distances.length - 1;
 
@@ -117,10 +116,9 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
     const forwardDirection = new THREE.Vector3().subVectors(nextPointOnCurve, pointOnCurve).normalize();
     const targetQuaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), forwardDirection);
 
-    carRef.current.quaternion.slerp(targetQuaternion, 0.1); // Daha yumuşak dönüş için slerp hızını düşürdük
+    carRef.current.quaternion.slerp(targetQuaternion, 0.1);
 
-    // Tekerlek dönüşü için hesaplama
-    const wheelRotationSpeed = currentSpeed / 1; // Tekerleklerin ne kadar hızlı döneceğini belirleyin
+    const wheelRotationSpeed = currentSpeed / 1;
     const wheelRotation = delta * wheelRotationSpeed;
 
     const frontRightWheel = carRef.current.getObjectByName("Front_Right");
@@ -144,31 +142,24 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
       backLeftWheel.rotateX(wheelRotation);
     }
 
-    // Update the camera position and orientation to follow the path like the car
     if (cameraMode === "follow" && cameraRef.current) {
-      const cameraOffset = 40; // Kameranın ne kadar geride kalacağını belirleyin
-      const cameraHeightOffset = 2; // Y ekseninde yukarı kaydırma
+      const cameraOffset = 150;
+      const cameraHeightOffset = 2;
       const cameraPointIndex = Math.max(0, (pointIndex - cameraOffset) % spacedPoints.length);
       const cameraPoint = spacedPoints[cameraPointIndex];
 
-      // Kamera pozisyonunu lineer interpolasyon ile yumuşat
       cameraRef.current.position.lerp(cameraPoint, 0.1);
-      // cameraRef.current.position.y = damp(cameraRef.current.position.y, cameraPoint.y + cameraHeightOffset, 5, delta);
       cameraRef.current.position.y = cameraHeightOffset;
 
-      // Kameranın arabayı takip edecek şekilde bakmasını sağla
       state.camera.position.lerp(cameraRef.current.position, 0.1);
       state.camera.lookAt(carRef.current.position.x, cameraHeightOffset, carRef.current.position.z);
     }
 
-    // Update the current lap time
     setCurrentLapTime(elapsedTimeRef.current);
 
-    // Update brake lights based on brakeData
     const brakeIntensity = brakeData[speedIndex] ? 3 : 0;
     brakeLightMaterial.emissiveIntensity = brakeIntensity;
 
-    // Reset the timer and distance when a lap is completed
     if (normalizedTime >= 1) {
       elapsedTimeRef.current = 0;
       distanceTraveledRef.current = 0;
