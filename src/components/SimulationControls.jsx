@@ -38,12 +38,14 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     setIsYearSelectDisabled,
     setIsRaining,
     setRpmData,
+    setCurrentLapTime,
+    setCurrentSpeed,
   } = useStore();
 
   const [flags, setFlags] = useState([]);
   const [currentFlag, setCurrentFlag] = useState(null);
   const [speedMultiplier, setSpeedMultiplier] = useState(3);
-  const [showRacingLineControls, setShowRacingLineControls] = useState(false); // Add this line
+  const [showRacingLineControls, setShowRacingLineControls] = useState(false);
 
   const years = [
     { value: 2018, label: 2018 },
@@ -55,22 +57,33 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
   ];
 
   const typeOptions = [
-    { value: "race", label: "Race"},
-    { value: "qualifying", label: "Qualifying"},
+    { value: "race", label: "Race" },
+    { value: "qualifying", label: "Qualifying" },
   ];
 
-  useEffect(() => {
-    //Reset year, driver, lap, and flags when changing type
+  const resetAfterType = () => {
     setSelectedYear(null);
-    setSelectedDriver(null);
-    setSelectedLap(null);
-    setFlags([]);
-    setDrivers([]);
-    setLaps([]);
-    setIsDriverSelectDisabled(true);
-    setIsLapSelectDisabled(true);
+    resetAfterYear();
     setIsYearSelectDisabled(true);
+  };
 
+  const resetAfterYear = () => {
+    setSelectedDriver(null);
+    resetAfterDriver();
+    setDrivers([]);
+    setIsDriverSelectDisabled(true);
+  };
+
+  const resetAfterDriver = () => {
+    setSelectedLap(null);
+    setLaps([]);
+    setCurrentLapTime(0);
+    setCurrentSpeed(0);
+    setIsLapSelectDisabled(true);
+  };
+
+  useEffect(() => {
+    resetAfterType();
     if (selectedType) {
       setIsYearSelectDisabled(false);
     }
@@ -85,29 +98,21 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           const driverOptions = response.data.map((driver) => ({ value: driver, label: driver }));
           setDrivers(driverOptions);
           setSelectedDriver(null);
-          setSelectedLap(null);
           setIsDriverSelectDisabled(false);
-          setIsLapSelectDisabled(true);
           setLoading(false);
         })
         .catch((error) => {
           console.error("Error fetching drivers:", error);
           setIsDriverSelectDisabled(true);
-          setIsLapSelectDisabled(true);
           setLoading(false);
         });
     } else {
-      setDrivers([]);
-      setSelectedDriver(null);
-      setLaps([]);
-      setSelectedLap(null);
-      setIsDriverSelectDisabled(true);
-      setIsLapSelectDisabled(true);
+      resetAfterYear();
     }
-  }, [selectedYear, setDrivers, setIsDriverSelectDisabled, setIsLapSelectDisabled, setLaps, setLoading, setSelectedDriver, setSelectedLap]);
+  }, [selectedYear, selectedType]);
 
   useEffect(() => {
-    if (selectedYear && selectedDriver) {
+    if (selectedDriver) {
       setLoading(true);
       axios
         .get(`http://localhost:8000/laps/${selectedYear.value}/${selectedType.value}/${selectedDriver.value}`)
@@ -124,14 +129,13 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           setLoading(false);
         });
     } else {
-      setLaps([]);
-      setSelectedLap(null);
-      setIsLapSelectDisabled(true);
+      resetAfterDriver();
     }
-  }, [selectedDriver, selectedYear, setIsLapSelectDisabled, setLaps, setLoading, setSelectedLap]);
+  }, [selectedDriver, selectedYear, selectedType]);
 
   useEffect(() => {
-    if (selectedYear && selectedDriver && selectedLap) {
+    console.log("Selected lap:", selectedLap);
+    if (selectedLap && selectedYear && selectedDriver && selectedType) {
       setLoading(true);
       axios
         .get(`http://localhost:8000/telemetry/${selectedYear.value}/${selectedType.value}/${selectedDriver.value}/${selectedLap.value}`)
@@ -156,8 +160,16 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           console.error("Error fetching telemetry data:", error);
           setLoading(false);
         });
+    } else {
+      setTelemetryData(null);
+      setLapDuration(null);
+      setSpeedData(null);
+      setFlags([]);
+      setBrakeData(null);
+      setRpmData(null);
+      setIsRaining(null);
     }
-  }, [selectedYear, selectedDriver, selectedLap, setTelemetryData, setLoading, setLapDuration, setSpeedData, speedMultiplier]);
+  }, [selectedLap]);
 
   useEffect(() => {
     const determineCurrentFlag = (flags, currentTime) => {
@@ -202,7 +214,14 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
   return (
     <div>
       {showRacingLineControls && (
-        <RacingLineControls translation={translation} setTranslation={setTranslation} rotation={rotation} setRotation={setRotation} scale={scale} setScale={setScale}/>
+        <RacingLineControls
+          translation={translation}
+          setTranslation={setTranslation}
+          rotation={rotation}
+          setRotation={setRotation}
+          scale={scale}
+          setScale={setScale}
+        />
       )}
       <div className="controls">
         <button onClick={() => setCameraMode("free")}>Free Camera</button>
@@ -262,8 +281,6 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           <span className="label">Speed</span>
           <span className="value">{currentSpeed}</span>
         </div>
-
-        
       </div>
       {currentFlag ? <FlagIndicator type={currentFlag} /> : null}
     </div>
