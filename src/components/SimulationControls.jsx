@@ -263,6 +263,19 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
         />
         <button onClick={toggleRacingLineVisibility}>Toggle Racing Line</button>
         <button onClick={() => setShowRacingLineControls(!showRacingLineControls)}>Toggle Racing Line Controls</button>
+        <button onClick={() => {
+          //FullScreen Toggle
+          const elem = document.documentElement;
+          if (!document.fullscreenElement) {
+            elem.requestFullscreen().then(() => {
+              console.log("Entered fullscreen");
+            });
+          } else {
+            document.exitFullscreen().then(() => {
+              console.log("Exited fullscreen");
+            });
+          }
+        }}>Fullscreen Toggle</button>
         {/* <input
           type="number"
           value={speedMultiplier}
