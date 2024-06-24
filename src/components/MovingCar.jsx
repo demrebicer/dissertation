@@ -155,6 +155,14 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
       state.camera.lookAt(carRef.current.position.x, cameraHeightOffset, carRef.current.position.z);
     }
 
+    if (cameraMode === "tv" && carRef.current) {
+      const cameraPosition = new THREE.Vector3().copy(carRef.current.position);
+      cameraPosition.y += 5; //5
+      cameraPosition.z -= 10; //10
+      state.camera.position.copy(cameraPosition);
+      state.camera.lookAt(carRef.current.position);
+    }
+
     setCurrentLapTime(elapsedTimeRef.current);
 
     const brakeIntensity = brakeData[speedIndex] ? 3 : 0;

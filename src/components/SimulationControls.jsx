@@ -226,6 +226,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
       <div className="controls">
         <button onClick={() => setCameraMode("free")}>Free Camera</button>
         <button onClick={() => setCameraMode("follow")}>Follow Camera</button>
+        <button onClick={() => setCameraMode("tv")}>TV Camera</button>
         <Select
           className="select-box"
           classNamePrefix="select"
