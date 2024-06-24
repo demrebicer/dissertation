@@ -127,19 +127,19 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
     const backLeftWheel = carRef.current.getObjectByName("Back_Left");
 
     if (frontRightWheel) {
-      frontRightWheel.rotateX(wheelRotation);
+      frontRightWheel.rotateZ(wheelRotation);
     }
 
     if (frontLeftWheel) {
-      frontLeftWheel.rotateX(wheelRotation);
+      frontLeftWheel.rotateZ(wheelRotation);
     }
 
     if (backRightWheel) {
-      backRightWheel.rotateX(wheelRotation);
+      backRightWheel.rotateZ(wheelRotation);
     }
 
     if (backLeftWheel) {
-      backLeftWheel.rotateX(wheelRotation);
+      backLeftWheel.rotateZ(wheelRotation);
     }
 
     if (cameraMode === "follow" && cameraRef.current) {
@@ -166,11 +166,11 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
     }
   });
 
-  const gltf = useGLTF("/assets/simplecar.glb", true);
+  const gltf = useGLTF("/assets/f1_car.glb", true);
 
   return (
     <>
-      <primitive ref={carRef} object={gltf.scene} scale={0.5} />
+      <primitive ref={carRef} object={gltf.scene} scale={0.65} />
       <group ref={cameraRef} />
     </>
   );
