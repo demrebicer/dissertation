@@ -43,7 +43,22 @@ function Simulation() {
           <Sky sunPosition={[20, 50, 20]} />
         )}
         <Sky sunPosition={[20, 50, 20]} />
-        <ambientLight intensity={5} />
+        {/* <ambientLight intensity={5} /> */}
+
+        <ambientLight intensity={1.5} />
+        <directionalLight
+          castShadow
+          position={[20, 50, 20]}
+          intensity={3}
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
+          shadow-camera-far={500}
+          shadow-camera-left={-50}
+          shadow-camera-right={50}
+          shadow-camera-top={50}
+          shadow-camera-bottom={-50}
+        />
+
         <OrbitControls enabled={cameraMode === "free"} maxDistance={850} />
         {/* <axesHelper args={[20]} /> */}
         {/* {isRaining && <Rain />} */}
