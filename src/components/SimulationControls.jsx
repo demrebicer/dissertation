@@ -45,7 +45,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
   const [flags, setFlags] = useState([]);
   const [currentFlag, setCurrentFlag] = useState(null);
   const [speedMultiplier, setSpeedMultiplier] = useState(3);
-  const [showRacingLineControls, setShowRacingLineControls] = useState(false);
+  const [showRacingLineControls, setShowRacingLineControls] = useState(true);
 
   const years = [
     { value: 2018, label: 2018 },
