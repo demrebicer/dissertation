@@ -1,68 +1,100 @@
 @import "../styles/fonts.scss";
 
-.controls {
+.race-configuration-container {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  width: 18rem;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+  color: #ffffff;
+  font-family: "Formula1", sans-serif;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  align-items: center;
   z-index: 1;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 
-  button {
-    padding: 10px;
-    background-color: #333;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
+  .race-configuration-title {
+    font-size: 18px;
+    line-height: 22px;
+    margin-bottom: 20px;
+  }
 
-    &:hover {
-      background-color: #555;
-    }
+  .dropdowns {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
 
-    &:focus {
-      outline: none;
+    .select-box {
+      width: 100%;
+
+      .select__control {
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        border: none;
+        box-shadow: none;
+        &:hover {
+          border-color: #fff;
+        }
+      }
+
+      .select__menu {
+        background-color: rgba(0, 0, 0, 0.9);
+        color: #fff;
+      }
+
+      .select__option {
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.5);
+        }
+      }
+
+      .select__option--is-selected {
+        background-color: #007bff;
+      }
+
+      .select__single-value {
+        color: #fff;
+      }
     }
   }
 
-  .select-box {
-    .select__control {
-      background-color: rgba(0, 0, 0, 0.7);
-      color: #fff;
-      border: none;
-      box-shadow: none;
+  .section-title {
+    font-size: 18px;
+    line-height: 22px;
+    margin: 30px 0 10px;
+  }
+
+  .camera-modes,
+  .tools,
+  .weather {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 8px;
+
+    .icon-button {
+      width: 42px;
+      height: 42px;
+      border: 2px solid #ffffff;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+
       &:hover {
-        border-color: #fff;
+        background-color: rgba(255, 255, 255, 0.1);
       }
-    }
 
-    .select__menu {
-      background-color: rgba(0, 0, 0, 0.9);
-      color: #fff;
-    }
-
-    .select__option {
-      background-color: rgba(0, 0, 0, 0.7);
-      color: #fff;
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.5);
+      svg {
+        color: #ffffff;
       }
-    }
-
-    .select__option--is-selected {
-      background-color: #007bff;
-    }
-
-    .select__single-value {
-      color: #fff;
     }
   }
 }
@@ -218,8 +250,6 @@
     }
   }
 }
-
-
 
 .live-info {
   position: absolute;

@@ -2,9 +2,17 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import useStore from "../utils/store";
 import axios from "axios";
-import "../assets/styles/simulationControls.scss";
 import FlagIndicator from "./FlagIndicator";
 import RacingLineControls from "./RacingLineControls";
+import { Tooltip } from "react-tooltip";
+
+import CloudIcon from "../assets/images/cloud_icon.png";
+import RainIcon from "../assets/images/rain_icon.png";
+import SunIcon from "../assets/images/sun_icon.png";
+import TrackIcon from "../assets/images/track_icon.png";
+
+import { FaVideo, FaCarSide, FaTv, FaExpand, FaExpandArrowsAlt } from "react-icons/fa";
+import "../assets/styles/newSimulationControls.scss";
 
 function SimulationControls({ translation, setTranslation, rotation, setRotation, scale, setScale }) {
   const {
@@ -45,7 +53,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
   const [flags, setFlags] = useState([]);
   const [currentFlag, setCurrentFlag] = useState(null);
   const [speedMultiplier, setSpeedMultiplier] = useState(3);
-  const [showRacingLineControls, setShowRacingLineControls] = useState(true);
+  const [showRacingLineControls, setShowRacingLineControls] = useState(false);
 
   const years = [
     { value: 2018, label: 2018 },
@@ -213,58 +221,102 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
 
   return (
     <div>
-      {showRacingLineControls && (
-        <RacingLineControls
-          translation={translation}
-          setTranslation={setTranslation}
-          rotation={rotation}
-          setRotation={setRotation}
-          scale={scale}
-          setScale={setScale}
-        />
-      )}
-      <div className="controls">
-        <button onClick={() => setCameraMode("free")}>Free Camera</button>
-        <button onClick={() => setCameraMode("follow")}>Follow Camera</button>
-        <button onClick={() => setCameraMode("tv")}>TV Camera</button>
-        <Select
-          className="select-box"
-          classNamePrefix="select"
-          options={typeOptions}
-          placeholder="Select Type"
-          onChange={setSelectedType}
-          value={selectedType}
-        />
-        <Select
-          className="select-box"
-          classNamePrefix="select"
-          options={years}
-          placeholder="Select Year"
-          onChange={setSelectedYear}
-          isDisabled={isYearSelectDisabled}
-          value={selectedYear}
-        />
-        <Select
-          className="select-box"
-          classNamePrefix="select"
-          options={drivers}
-          placeholder="Select Driver"
-          onChange={setSelectedDriver}
-          isDisabled={isDriverSelectDisabled}
-          value={selectedDriver}
-        />
-        <Select
-          className="select-box"
-          classNamePrefix="select"
-          options={laps}
-          placeholder="Select Lap"
-          onChange={setSelectedLap}
-          isDisabled={isLapSelectDisabled}
-          value={selectedLap}
-        />
-        <button onClick={toggleRacingLineVisibility}>Toggle Racing Line</button>
-        <button onClick={() => setShowRacingLineControls(!showRacingLineControls)}>Toggle Racing Line Controls</button>
-        <button onClick={() => {
+    {showRacingLineControls && (
+    <RacingLineControls
+      translation={translation}
+      setTranslation={setTranslation}
+      rotation={rotation}
+      setRotation={setRotation}
+      scale={scale}
+      setScale={setScale}
+    />
+  )}
+  <div className="race-configuration-container">
+    <div className="race-configuration-title">Race Configuration</div>
+
+    <div className="dropdowns">
+      <Select
+        className="select-box"
+        classNamePrefix="select"
+        options={typeOptions}
+        placeholder="Select Type"
+        onChange={setSelectedType}
+        value={selectedType}
+      />
+      <Select
+        className="select-box"
+        classNamePrefix="select"
+        options={years}
+        placeholder="Select Year"
+        onChange={setSelectedYear}
+        isDisabled={isYearSelectDisabled}
+        value={selectedYear}
+      />
+      <Select
+        className="select-box"
+        classNamePrefix="select"
+        options={drivers}
+        placeholder="Select Driver"
+        onChange={setSelectedDriver}
+        isDisabled={isDriverSelectDisabled}
+        value={selectedDriver}
+      />
+      <Select
+        className="select-box"
+        classNamePrefix="select"
+        options={laps}
+        placeholder="Select Lap"
+        onChange={setSelectedLap}
+        isDisabled={isLapSelectDisabled}
+        value={selectedLap}
+      />
+    </div>
+
+    <div className="section-title">Camera Modes</div>
+
+    <div className="camera-modes">
+      <button
+        className="icon-button"
+        onClick={() => setCameraMode("free")}
+        data-tooltip-id="my-tooltip"
+        data-tooltip-content="Free Camera"
+      >
+        <FaVideo size={24} />
+      </button>
+      <button
+        className="icon-button"
+        onClick={() => setCameraMode("follow")}
+        data-tooltip-id="my-tooltip"
+        data-tooltip-content="Follow Camera"
+      >
+        <FaCarSide size={24} />
+      </button>
+      <button className="icon-button" onClick={() => setCameraMode("tv")} data-tooltip-id="my-tooltip" data-tooltip-content="TV Camera">
+        <FaTv size={24} />
+      </button>
+    </div>
+
+    <div className="section-title">Tools</div>
+    <div className="tools">
+      <button
+        className="icon-button"
+        onClick={() => setShowRacingLineControls(!showRacingLineControls)}
+        data-tooltip-id="my-tooltip"
+        data-tooltip-content="Toggle Racing Line Controls"
+      >
+        <FaExpandArrowsAlt />
+      </button>
+      <button
+        className="icon-button"
+        onClick={toggleRacingLineVisibility}
+        data-tooltip-id="my-tooltip"
+        data-tooltip-content="Toggle Racing Line"
+      >
+        <img src={TrackIcon} alt="Track" />
+      </button>
+      <button
+        className="icon-button"
+        onClick={() => {
           //FullScreen Toggle
           const elem = document.documentElement;
           if (!document.fullscreenElement) {
@@ -276,28 +328,43 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
               console.log("Exited fullscreen");
             });
           }
-        }}>Fullscreen Toggle</button>
-        {/* <input
-          type="number"
-          value={speedMultiplier}
-          onChange={(e) => setSpeedMultiplier(e.target.value)}
-          placeholder="Speed Multiplier"
-        /> Add this input */}
-      </div>
-
-      <div className="live-info">
-        <div className="info-box">
-          <span className="label">Lap Time</span>
-          <span className="value">{formatLapTime(currentLapTime)}</span>
-        </div>
-
-        <div className="info-box">
-          <span className="label">Speed</span>
-          <span className="value">{currentSpeed}</span>
-        </div>
-      </div>
-      {currentFlag ? <FlagIndicator type={currentFlag} /> : null}
+        }}
+        data-tooltip-id="my-tooltip"
+        data-tooltip-content="Toggle Fullscreen"
+      >
+        <FaExpand />
+      </button>
     </div>
+
+    <div className="section-title">Weather</div>
+    <div className="weather">
+      <button className="icon-button" data-tooltip-id="my-tooltip" data-tooltip-content="Sunny Weather">
+        <img src={SunIcon} alt="Sun" />
+      </button>
+      <button className="icon-button" data-tooltip-id="my-tooltip" data-tooltip-content="Cloudy Weather">
+        <img src={CloudIcon} alt="Cloud" />
+      </button>
+      <button className="icon-button" data-tooltip-id="my-tooltip" data-tooltip-content="Rainy Weather">
+        <img src={RainIcon} alt="Rain" />
+      </button>
+    </div>
+
+    <Tooltip id="my-tooltip" place="bottom" />
+  </div>
+
+  <div className="live-info">
+    <div className="info-box">
+      <span className="label">Lap Time</span>
+      <span className="value">{formatLapTime(currentLapTime)}</span>
+    </div>
+
+    <div className="info-box">
+      <span className="label">Speed</span>
+      <span className="value">{currentSpeed}</span>
+    </div>
+  </div>
+  {currentFlag ? <FlagIndicator type={currentFlag} /> : null}
+</div>
   );
 }
 

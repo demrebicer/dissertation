@@ -15,6 +15,8 @@ import RaceTrack from "../components/RaceTrack";
 import RacingLine from "../components/RacingLine";
 import Rain from "../components/Rain";
 
+import NewSimulationControls from "../components/NewSimulationControls";
+
 function Simulation() {
   const { telemetryData, lapDuration, loading, cameraMode, isRacingLineVisible, isRaining } = useStore();
 
@@ -28,6 +30,14 @@ function Simulation() {
   return (
     <div className="homepage">
       {loading && <FullPageLoader />}
+      {/* < NewSimulationControls  
+        translation={translation}
+        setTranslation={setTranslation}
+        rotation={rotation}
+        setRotation={setRotation}
+        scale={scale}
+        setScale={setScale}
+        /> */}
       <SimulationControls
         translation={translation}
         setTranslation={setTranslation}
