@@ -41,10 +41,12 @@ const useStore = create((set) => ({
   setSelectedType: (type) => set({ selectedType: type}),
   isYearSelectDisabled: true,
   setIsYearSelectDisabled: (isDisabled) => set({ isYearSelectDisabled: isDisabled }),
-  isRaining: false,
-  setIsRaining: (isRaining) => set({ isRaining }),
+  // isRaining: false,
+  // setIsRaining: (isRaining) => set({ isRaining }),
   rpmData: null,
   setRpmData: (data) => set({ rpmData: data }),
+  currentWeather: "sunny",
+  setCurrentWeather: (weather) => set({ currentWeather: weather }),
 }));
 
 export default useStore;

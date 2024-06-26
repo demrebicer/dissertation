@@ -4,7 +4,7 @@ import { BufferGeometry, Float32BufferAttribute, Points, PointsMaterial, Additiv
 
 export default function Rain() {
   const rainRef = useRef();
-  const count = 5000;
+  const count = 3500;
   const positions = new Float32Array(count * 3);
 
   for (let i = 0; i < count; i++) {
