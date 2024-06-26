@@ -11,8 +11,8 @@ export default function RacingLineControls({ translation, setTranslation, rotati
   // On joystick move update translation
   function moveJoystick(e) {
     const { x, y } = e;
-    const scaledX = x * 100;
-    const scaledZ = y * -100;
+    const scaledX = x * 10;
+    const scaledZ = y * -10;
 
     setTranslation({ x: scaledX, z: scaledZ });
   }
