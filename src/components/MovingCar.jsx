@@ -4,6 +4,10 @@ import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import useStore from "../utils/store";
 
+import AccelerationSound from "../assets/sounds/acceleration.mp3";
+import CruiseSound from "../assets/sounds/cruise.mp3";
+import DecelerationSound from "../assets/sounds/deceleration.mp3";
+
 const rotationAngleDegrees = 75;
 const rotationAngleRadians = rotationAngleDegrees * (Math.PI / 180);
 
@@ -15,7 +19,7 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
   const cameraRef = useRef();
   const elapsedTimeRef = useRef(0);
   const distanceTraveledRef = useRef(0);
-  const { cameraMode, setCurrentLapTime, speedData, brakeData, setCurrentSpeed } = useStore();
+  const { cameraMode, setCurrentLapTime, speedData, brakeData, setCurrentSpeed, rpmData, isSoundMuted } = useStore();
 
   const customRotationMatrix = useMemo(() => {
     const matrix = new THREE.Matrix4();
@@ -87,6 +91,47 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
       }
     };
   }, [brakeLightMaterial]);
+
+  // Sound effects
+  const accelerationSoundRef = useRef();
+  const cruiseSoundRef = useRef();
+  const decelerationSoundRef = useRef();
+
+  useEffect(() => {
+    const listener = new THREE.AudioListener();
+    carRef.current.add(listener);
+
+    const accelerationSound = new THREE.Audio(listener);
+    const cruiseSound = new THREE.Audio(listener);
+    const decelerationSound = new THREE.Audio(listener);
+
+    const audioLoader = new THREE.AudioLoader();
+    audioLoader.load(AccelerationSound, (buffer) => {
+      accelerationSound.setBuffer(buffer);
+      accelerationSound.setLoop(true);
+      accelerationSound.setVolume(0.5);
+    });
+    audioLoader.load(CruiseSound, (buffer) => {
+      cruiseSound.setBuffer(buffer);
+      cruiseSound.setLoop(true);
+      cruiseSound.setVolume(0.5);
+    });
+    audioLoader.load(DecelerationSound, (buffer) => {
+      decelerationSound.setBuffer(buffer);
+      decelerationSound.setLoop(true);
+      decelerationSound.setVolume(0.5);
+    });
+
+    accelerationSoundRef.current = accelerationSound;
+    cruiseSoundRef.current = cruiseSound;
+    decelerationSoundRef.current = decelerationSound;
+
+    return () => {
+      accelerationSound.stop();
+      cruiseSound.stop();
+      decelerationSound.stop();
+    };
+  }, []);
 
   function damp(current, target, lambda, delta) {
     return current + (target - current) * (1 - Math.exp(-lambda * delta));
@@ -167,6 +212,34 @@ function MovingCar({ path, translation, rotation, duration, scale }) {
 
     const brakeIntensity = brakeData[speedIndex] ? 3 : 0;
     brakeLightMaterial.emissiveIntensity = brakeIntensity;
+
+    // Handle sound playback based on RPM data and isSoundMuted flag
+    if (!isSoundMuted) {
+      const currentRpm = rpmData[speedIndex];
+      if (currentRpm > 9000) {
+        if (!accelerationSoundRef.current.isPlaying) {
+          accelerationSoundRef.current.play();
+          cruiseSoundRef.current.stop();
+          decelerationSoundRef.current.stop();
+        }
+      } else if (currentRpm > 5000) {
+        if (!cruiseSoundRef.current.isPlaying) {
+          cruiseSoundRef.current.play();
+          accelerationSoundRef.current.stop();
+          decelerationSoundRef.current.stop();
+        }
+      } else {
+        if (!decelerationSoundRef.current.isPlaying) {
+          decelerationSoundRef.current.play();
+          accelerationSoundRef.current.stop();
+          cruiseSoundRef.current.stop();
+        }
+      }
+    } else {
+      accelerationSoundRef.current.stop();
+      cruiseSoundRef.current.stop();
+      decelerationSoundRef.current.stop();
+    }
 
     if (normalizedTime >= 1) {
       elapsedTimeRef.current = 0;

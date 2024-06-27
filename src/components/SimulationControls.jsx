@@ -11,7 +11,7 @@ import RainIcon from "../assets/images/rain_icon.png";
 import SunIcon from "../assets/images/sun_icon.png";
 import TrackIcon from "../assets/images/track_icon.png";
 
-import { FaVideo, FaCarSide, FaTv, FaExpand, FaExpandArrowsAlt } from "react-icons/fa";
+import { FaVideo, FaCarSide, FaTv, FaExpand, FaExpandArrowsAlt, FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import "../assets/styles/simulationControls.scss";
 
 function SimulationControls({ translation, setTranslation, rotation, setRotation, scale, setScale }) {
@@ -51,6 +51,8 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     setCurrentSpeed,
     currentWeather,
     setCurrentWeather,
+    isSoundMuted,
+    setIsSoundMuted,
   } = useStore();
 
   const [flags, setFlags] = useState([]);
@@ -345,6 +347,18 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           >
             <FaExpand />
           </button>
+        </div>
+
+        <div className="tools tools-row">
+          <button
+            className="icon-button"
+            onClick={() => setIsSoundMuted(!isSoundMuted)}
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content="Toggle Mute Sound"
+          >
+            {isSoundMuted ? <FaVolumeMute size={24}/> : <FaVolumeUp size={24}/>}
+          </button>
+         
         </div>
 
         <div className="section-title">Weather</div>
