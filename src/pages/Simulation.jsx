@@ -66,7 +66,7 @@ function Simulation() {
         <Sky sunPosition={[20, 50, 20]} />
         {/* <ambientLight intensity={5} /> */}
 
-        <ambientLight intensity={currentWeather === "sunny" ? 1.5 : 1} />
+        <ambientLight intensity={currentWeather === "sunny" ? 3 : 1.5} />
         <directionalLight
           castShadow
           position={[20, 50, 20]}
