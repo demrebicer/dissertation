@@ -39,7 +39,16 @@ function Simulation() {
       />
       <Canvas camera={{ position: [0, 100, 130], fov: 50 }}>
         {currentWeather === "rainy" ? (
-          <Sky sunPosition={[5, 1, 8]} inclination={0.6} azimuth={0.25} />
+          // <Sky sunPosition={[5, 1, 8]} inclination={0.6} azimuth={0.25} />
+          <Sky
+            sunPosition={[5, 1, 8]}
+            inclination={0.6}
+            azimuth={0.1}
+            mieCoefficient={0.01}
+            mieDirectionalG={0.7}
+            rayleigh={1}
+            turbidity={250}
+          />
         ) : currentWeather === "cloudy" ? (
           <Sky
             sunPosition={[5, 1, 8]}
