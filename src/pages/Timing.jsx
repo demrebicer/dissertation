@@ -17,7 +17,7 @@ const formatTime = (totalSeconds) => {
 const Timing = () => {
   const [lapsData, setLapsData] = useState([]);
   const [streamData, setStreamData] = useState([]);
-  const [currentLap, setCurrentLap] = useState(0);
+  const [currentLap, setCurrentLap] = useState(1); // Start with lap 1
   const [maxLaps, setMaxLaps] = useState(0);
   const [time, setTime] = useState(0);
   const [startTime, setStartTime] = useState(0);
@@ -36,7 +36,6 @@ const Timing = () => {
           const data = response.data.laps_data;
           setLapsData(data);
           setStreamData(response.data.stream_data);
-          setCurrentLap(1);
 
           const driverWithMaxLaps = data.reduce((prev, current) => {
             return prev.NumberOfLaps > current.NumberOfLaps ? prev : current;
@@ -67,6 +66,17 @@ const Timing = () => {
         const newTime = (manualStartTime !== null ? manualStartTime : startTime) + elapsedTime;
 
         setTime(newTime);
+
+        // Check and update the current lap based on the new time
+        const nextLap = lapsData.find((lap) => parseFloat(lap.Time) > time);
+        if (nextLap) {
+          const lapIndex = lapsData.indexOf(nextLap);
+          if (currentLap !== lapIndex + 1) { // Adjust for 1-based lap index
+            setCurrentLap(lapIndex + 1);
+          }
+        } else if (currentLap !== lapsData.length + 1) {
+          setCurrentLap(lapsData.length + 1);
+        }
       }, 1000, { aligned: true, immediate: true });
     }
 
@@ -75,20 +85,7 @@ const Timing = () => {
         interval.clear();
       }
     };
-  }, [dataLoaded, startTime, manualStartTime]);
-
-  useEffect(() => {
-    const maxCompletedLap = lapsData.reduce((maxLap, lap) => {
-      if (time >= parseFloat(lap.Time) && lap.NumberOfLaps > maxLap) {
-        return lap.NumberOfLaps;
-      }
-      return maxLap;
-    }, 0);
-
-    if (maxCompletedLap > currentLap) {
-      setCurrentLap(maxCompletedLap);
-    }
-  }, [time, lapsData]);
+  }, [dataLoaded, startTime, manualStartTime, lapsData, currentLap, time]);
 
   const getCurrentPositionData = (driver) => {
     const currentTimeData = streamData
@@ -113,9 +110,9 @@ const Timing = () => {
   };
 
   const handleSkipNextLap = () => {
-    const nextLap = lapsData.find((lap) => lap.NumberOfLaps === currentLap + 1);
-    if (nextLap) {
-      const nextLapTime = parseFloat(nextLap.Time);
+    const currentLapData = lapsData.find((lap) => lap.NumberOfLaps === currentLap);
+    if (currentLapData) {
+      const nextLapTime = parseFloat(currentLapData.Time);
       setManualStartTime(nextLapTime);
       setTime(nextLapTime);
       setCurrentLap(currentLap + 1);
@@ -156,7 +153,7 @@ const Timing = () => {
         Current Lap: {currentLap}/{maxLaps}
       </h2>
       <p>
-        Time: {formatTime(time)}
+        Time: {formatTime(time)} ({time})
       </p>
       <button onClick={handleSkipNextLap}>Skip Next Lap</button>
       <table>
