@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import accurateInterval from "accurate-interval";
-// import "../assets/styles/timing.scss";
+import "../assets/styles/positionsTable.scss";
+import { FaAngleDoubleRight } from "react-icons/fa";
+import { Tooltip } from "react-tooltip";
 
 const formatTime = (totalSeconds) => {
   const hours = Math.floor(totalSeconds / 3600);
@@ -15,10 +17,10 @@ const formatTime = (totalSeconds) => {
   return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
 };
 
-const Timing = () => {
+const PositionsTable = () => {
   const [lapsData, setLapsData] = useState([]);
   const [streamData, setStreamData] = useState([]);
-  const [currentLap, setCurrentLap] = useState(1); // Start with lap 1
+  const [currentLap, setCurrentLap] = useState(0);
   const [maxLaps, setMaxLaps] = useState(0);
   const [time, setTime] = useState(0);
   const [startTime, setStartTime] = useState(0);
@@ -26,6 +28,7 @@ const Timing = () => {
   const [dataLoaded, setDataLoaded] = useState(false);
   const requestMade = useRef(false);
   const startTimestamp = useRef(0);
+  const sessionEndTime = useRef(0);
 
   useEffect(() => {
     if (!requestMade.current) {
@@ -37,17 +40,15 @@ const Timing = () => {
           const data = response.data.laps_data;
           setLapsData(data);
           setStreamData(response.data.stream_data);
-
-          const driverWithMaxLaps = data.reduce((prev, current) => {
-            return prev.NumberOfLaps > current.NumberOfLaps ? prev : current;
-          });
-
-          setMaxLaps(driverWithMaxLaps.NumberOfLaps);
+          setCurrentLap(1);
+          setMaxLaps(response.data.total_laps);
 
           if (data.length > 0) {
             const sessionStartTime = parseFloat(response.data.session_start_time);
+            const endTime = parseFloat(response.data.session_end_time);
             setStartTime(sessionStartTime);
             setTime(sessionStartTime);
+            sessionEndTime.current = endTime;
             setDataLoaded(true);
             startTimestamp.current = Date.now();
           }
@@ -61,24 +62,31 @@ const Timing = () => {
   useEffect(() => {
     let interval;
     if (dataLoaded) {
-      interval = accurateInterval(() => {
-        const now = Date.now();
-        const elapsedTime = Math.floor((now - startTimestamp.current) / 1000);
-        const newTime = (manualStartTime !== null ? manualStartTime : startTime) + elapsedTime;
+      interval = accurateInterval(
+        () => {
+          const now = Date.now();
+          const elapsedTime = Math.floor((now - startTimestamp.current) / 1000);
+          let newTime = (manualStartTime !== null ? manualStartTime : startTime) + elapsedTime;
 
-        setTime(newTime);
-
-        // Check and update the current lap based on the new time
-        const nextLap = lapsData.find((lap) => parseFloat(lap.Time) > time);
-        if (nextLap) {
-          const lapIndex = lapsData.indexOf(nextLap);
-          if (currentLap !== lapIndex + 1) { // Adjust for 1-based lap index
-            setCurrentLap(lapIndex + 1);
+          if (newTime > sessionEndTime.current) {
+            newTime = sessionEndTime.current;
           }
-        } else if (currentLap !== lapsData.length + 1) {
-          setCurrentLap(lapsData.length + 1);
-        }
-      }, 1000, { aligned: true, immediate: true });
+
+          setTime(newTime);
+
+          const nextLap = lapsData.find((lap) => parseFloat(lap.Time) > time);
+          if (nextLap) {
+            const lapIndex = lapsData.indexOf(nextLap);
+            if (currentLap !== lapIndex + 1 && lapIndex + 1 <= maxLaps) {
+              setCurrentLap(lapIndex + 1);
+            }
+          } else if (currentLap !== lapsData.length + 1 && lapsData.length + 1 <= maxLaps) {
+            setCurrentLap(lapsData.length + 1);
+          }
+        },
+        1000,
+        { aligned: true, immediate: true },
+      );
     }
 
     return () => {
@@ -86,7 +94,7 @@ const Timing = () => {
         interval.clear();
       }
     };
-  }, [dataLoaded, startTime, manualStartTime, lapsData, currentLap, time]);
+  }, [dataLoaded, startTime, manualStartTime, lapsData, currentLap, time, maxLaps]);
 
   const getCurrentPositionData = (driver) => {
     const currentTimeData = streamData
@@ -111,13 +119,15 @@ const Timing = () => {
   };
 
   const handleSkipNextLap = () => {
-    const currentLapData = lapsData.find((lap) => lap.NumberOfLaps === currentLap);
-    if (currentLapData) {
-      const nextLapTime = parseFloat(currentLapData.Time);
-      setManualStartTime(nextLapTime);
-      setTime(nextLapTime);
-      setCurrentLap(currentLap + 1);
-      startTimestamp.current = Date.now();
+    if (currentLap < maxLaps) {
+      const currentLapData = lapsData.find((lap) => lap.NumberOfLaps === currentLap);
+      if (currentLapData) {
+        const nextLapTime = parseFloat(currentLapData.Time);
+        setManualStartTime(nextLapTime);
+        setTime(nextLapTime);
+        setCurrentLap(currentLap + 1);
+        startTimestamp.current = Date.now();
+      }
     }
   };
 
@@ -148,45 +158,51 @@ const Timing = () => {
   });
 
   return (
-    <div className="timing-page">
-      <h1>Timing Page</h1>
-      <h2>
-        Current Lap: {currentLap}/{maxLaps}
-      </h2>
-      <p>
-        Time: {formatTime(time)} ({time})
-      </p>
-      <button className="skip-button" onClick={handleSkipNextLap}>Skip Next Lap</button>
-      <table className="timing-table">
-        <thead>
-          <tr>
-            <th>Position</th>
-            <th>Driver</th>
-            <th>Driver Name</th>
-            <th>Lap Time</th>
-            <th>Gap to Leader</th>
-            <th>Interval to Position Ahead</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedLapsData.map((lap, index) => {
-            const lapTime = lap.LapTime ? formatTime(parseFloat(lap.LapTime)) : null;
-            const isDnf = !lapsData.some((l) => l.Driver === lap.Driver && l.NumberOfLaps === currentLap);
-            return (
-              <tr key={index} className={isDnf ? 'dnf' : ''}>
-                <td className="position">{lap.Position}</td>
-                <td className="driver">{lap.Driver}</td>
-                <td className="driver-name">{lap.DriverName}</td>
-                <td className="lap-time">{lapTime || (isDnf ? "DNF" : "")}</td>
-                <td className="gap-to-leader">{lap.Position === 1 ? "Interval" : isDnf ? "DNF" : lap.GapToLeader}</td>
-                <td className="interval-to-position-ahead">{lap.Position === 1 ? "Interval" : isDnf ? "DNF" : lap.IntervalToPositionAhead}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <div className="positions-table">
+      <FaAngleDoubleRight
+        className="skip-next-lap"
+        onClick={handleSkipNextLap}
+        size={24}
+        data-tooltip-content="Skip Next Lap"
+        data-tooltip-id="my-tooltip"
+      />
+      <div className="lap-info">
+        <div className="lap-title">LAP</div>
+        <div className="lap-count">
+          {currentLap} / {maxLaps}
+        </div>
+        <div className="lap-time">{formatTime(time)}</div>
+      </div>
+      <div className="separator"></div>
+      <div className="drivers">
+        {sortedLapsData.map((driver, index) => {
+          const isDnf = !lapsData.some((l) => {
+
+            if (l.Driver === "63") {
+              // console.log(l);
+            }
+
+            return l.Driver === driver.Driver && l.NumberOfLaps === currentLap;
+          });
+
+          return (
+            <div className="driver" key={index}>
+              <div className="position-container">
+                <div className="position">{driver.Position}</div>
+              </div>
+              <div className="team-color" style={{ background: driver.TeamColor }}></div>
+              <div className="abbreviation">{driver.DriverName}</div>
+              <div className="interval-to-position-ahead">
+                {driver.Position === 1 ? "Leader" : isDnf ? "DNF" : driver.IntervalToPositionAhead}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <Tooltip id="my-tooltip" place="bottom" />
     </div>
   );
 };
 
-export default Timing;
+export default PositionsTable;

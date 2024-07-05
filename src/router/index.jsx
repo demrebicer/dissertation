@@ -7,6 +7,7 @@ import Simulation from "../pages/Simulation";
 import Test from "../pages/Test";
 import Tooltip from "../pages/Tooltip";
 import Timing from "../pages/Timing";
+import LapBoard from "../pages/LapBoard";
 
 
 import useStore from "../utils/store";
@@ -21,6 +22,7 @@ const RouterHandler = () => {
       <Route path="/test" element={<Test />} />
       <Route path="/tooltip" element={<Tooltip />} />
       <Route path="/timing" element={<Timing />} />
+      <Route path="/lapboard" element={<LapBoard />} />
     </Routes>
   );
 };

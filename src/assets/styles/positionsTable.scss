@@ -1,0 +1,114 @@
+.positions-table {
+  position: absolute;
+  top: 5%;
+  left: 2%;
+  z-index: 1;
+  width: 257px;
+  background: rgba(0, 0, 0, 0.7);
+  font-family: "Formula1", Arial, sans-serif;
+  color: white;
+
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+
+  // #my-tooltip {
+  //   font-family:  Arial, sans-serif;
+  // }
+
+  .skip-next-lap {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .lap-info {
+    text-align: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+
+    .lap-title {
+      font-family: "Formula1-Wide";
+      font-style: normal;
+      font-size: 21px;
+      font-weight: 500;
+      line-height: 25px;
+    }
+
+    .lap-count {
+      font-size: 18px;
+    }
+
+    .lap-time {
+      font-size: 21px;
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+  }
+
+  .separator {
+    background: #c82e2a;
+    height: 5px;
+    width: 100%;
+  }
+
+  .drivers {
+    .driver {
+      position: relative;
+      width: 100%;
+      height: 35px;
+
+      .position-container {
+        position: absolute;
+        width: 35px;
+        height: 35px;
+        left: 0;
+        top: 0;
+        background: rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .position {
+        font-size: 16px;
+        line-height: 19px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .abbreviation {
+        position: absolute;
+        width: 50px;
+        height: 20px;
+        left: 60px;
+        top: 7px;
+        font-size: 17px;
+        line-height: 20px;
+        color: #ffffff;
+      }
+
+      .team-color {
+        position: absolute;
+        width: 6px;
+        height: 16px;
+        left: 47px;
+        top: 9px;
+        border-radius: 2px;
+      }
+
+      .interval-to-position-ahead {
+        position: absolute;
+        width: 59px;
+        height: 19px;
+        left: 153px;
+        top: 8px;
+        font-size: 16px;
+        line-height: 19px;
+        color: #ffffff;
+      }
+    }
+  }
+}
