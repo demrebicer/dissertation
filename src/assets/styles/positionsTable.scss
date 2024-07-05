@@ -23,6 +23,15 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    user-select: none; /* Metin seçimini engeller */
+
+    &:focus {
+      outline: none; /* Buton odaklandığında mavi çerçeveyi engeller */
+    }
+
+    &:active {
+      outline: none; /* Buton tıklandığında mavi çerçeveyi engeller */
+    }
   }
 
   .lap-info {

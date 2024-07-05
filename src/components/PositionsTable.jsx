@@ -20,6 +20,8 @@ const formatTime = (totalSeconds) => {
 const PositionsTable = () => {
   const [lapsData, setLapsData] = useState([]);
   const [streamData, setStreamData] = useState([]);
+  const [completedLapsData, setCompletedLapsData] = useState({});
+  const [driverStatusData, setDriverStatusData] = useState({});
   const [currentLap, setCurrentLap] = useState(0);
   const [maxLaps, setMaxLaps] = useState(0);
   const [time, setTime] = useState(0);
@@ -29,6 +31,8 @@ const PositionsTable = () => {
   const requestMade = useRef(false);
   const startTimestamp = useRef(0);
   const sessionEndTime = useRef(0);
+
+  const [isAllDriversFinished, setIsAllDriversFinished] = useState(false);
 
   useEffect(() => {
     if (!requestMade.current) {
@@ -40,6 +44,8 @@ const PositionsTable = () => {
           const data = response.data.laps_data;
           setLapsData(data);
           setStreamData(response.data.stream_data);
+          setCompletedLapsData(response.data.completed_laps); // Tamamlanan turlar verisi
+          setDriverStatusData(response.data.driver_status); // Sürücü durumu verisi
           setCurrentLap(1);
           setMaxLaps(response.data.total_laps);
 
@@ -106,17 +112,49 @@ const PositionsTable = () => {
         }
         return closest;
       }, null);
-
+  
+    const completedLaps = completedLapsData[driver];
+    const driverStatus = driverStatusData[driver];
+  
     if (!currentTimeData) {
-      return { Position: "DNF", GapToLeader: "DNF", IntervalToPositionAhead: "DNF" };
+      if (driverStatus === "DNF") {
+        return { Position: "DNF", GapToLeader: "DNF", IntervalToPositionAhead: "DNF" };
+      } else if (completedLaps === maxLaps - 1) {
+        return { Position: lapsData.length + 1, GapToLeader: "+1 Lap", IntervalToPositionAhead: "+1 Lap" };
+      } else {
+        return { Position: lapsData.length + 1, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
+      }
     }
-
-    if (currentLap === maxLaps && lapsData.some((lap) => lap.Driver === driver && lap.NumberOfLaps === maxLaps)) {
-      return { ...currentTimeData, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
+  
+    // Eğer son turdaysak ve sürücü bitirmişse
+    if (currentLap === maxLaps) {
+      if (time >= sessionEndTime.current) {
+        // Seans bitmişse, DNF olmayan herkes finished olacak
+        if (driverStatus !== "DNF") {
+          return { ...currentTimeData, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
+        }
+      } else if (driverStatus === "Finished") {
+        const lastStreamData = streamData
+          .filter((entry) => entry.Driver === driver)
+          .reduce((latest, entry) => {
+            const entryTime = parseFloat(entry.Time);
+            if (!latest || entryTime > parseFloat(latest.Time)) {
+              return entry;
+            }
+            return latest;
+          }, null);
+  
+        if (lastStreamData && parseFloat(lastStreamData.Time) <= time) {
+          return { ...currentTimeData, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
+        }
+      } else if (driverStatus === "+1 Lap" && currentLap > completedLapsData[driver]) {
+        return { ...currentTimeData, GapToLeader: "+1 Lap", IntervalToPositionAhead: "+1 Lap" };
+      }
     }
-
+  
     return currentTimeData;
   };
+  
 
   const handleSkipNextLap = () => {
     if (currentLap < maxLaps) {
@@ -146,6 +184,8 @@ const PositionsTable = () => {
   const sortedLapsData = allDrivers.sort((a, b) => {
     if (a.Position === "DNF") return 1;
     if (b.Position === "DNF") return -1;
+    if (a.Position === "Finished") return -1;
+    if (b.Position === "Finished") return 1;
     return a.Position - b.Position;
   });
 
@@ -176,15 +216,7 @@ const PositionsTable = () => {
       <div className="separator"></div>
       <div className="drivers">
         {sortedLapsData.map((driver, index) => {
-          const isDnf = !lapsData.some((l) => {
-
-            if (l.Driver === "63") {
-              // console.log(l);
-            }
-
-            return l.Driver === driver.Driver && l.NumberOfLaps === currentLap;
-          });
-
+          const isDnf = driverStatusData[driver.Driver] === "DNF" && completedLapsData[driver.Driver] < currentLap;
           return (
             <div className="driver" key={index}>
               <div className="position-container">
