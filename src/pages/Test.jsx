@@ -1,7 +1,7 @@
 import React, { useRef, useMemo, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { Box, OrbitControls, Sky, Html } from "@react-three/drei";
+import { Box as DreiBox, OrbitControls, Sky, Html } from "@react-three/drei";
 import axios from "axios";
 import SimulationControls from "../components/SimulationControls";
 import RaceTrack from "../components/RaceTrack";
@@ -12,6 +12,7 @@ function randomColor() {
 }
 
 function MovingBox({ driverName, path, duration, speedData, color }) {
+  console.log(driverName);
   const meshRef = useRef();
   const elapsedTimeRef = useRef(0);
   const distanceTraveledRef = useRef(0);
@@ -54,6 +55,11 @@ function MovingBox({ driverName, path, duration, speedData, color }) {
   useFrame((state, delta) => {
     elapsedTimeRef.current += delta;
 
+    if (elapsedTimeRef.current >= duration) {
+      elapsedTimeRef.current = 0;
+      distanceTraveledRef.current = 0;
+    }
+
     const normalizedTime = elapsedTimeRef.current / duration;
     const speedIndex = Math.min(Math.floor(normalizedTime * adjustedSpeedData.length), adjustedSpeedData.length - 1);
     const currentSpeed = adjustedSpeedData[speedIndex];
@@ -77,23 +83,36 @@ function MovingBox({ driverName, path, duration, speedData, color }) {
   });
 
   return (
-    <Box ref={meshRef} args={[1, 1, 1]} position={[points[0].x, points[0].y, points[0].z]}>
+    <DreiBox ref={meshRef} args={[1, 1, 1]} position={[points[0].x, points[0].y, points[0].z]}>
       <meshStandardMaterial attach="material" color={color} />
-    </Box>
+      <Html distanceFactor={10} position={[0, 1.5, 0]}>
+        <div
+          style={{
+            background: 'rgba(0, 0, 0, 0.5)',
+            padding: '5px 25px',
+            fontSize: '128px',
+            color: 'white',
+            borderRadius: '5px',
+            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+            transform: 'translate3d(-50%, -50%, 0)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {driverName}
+        </div>
+      </Html>
+    </DreiBox>
   );
 }
 
 export default function Test() {
   const [telemetryData, setTelemetryData] = useState({});
-  const [translation, setTranslation] = useState({ x: 0, y: 0, z: 0 });
-  const [rotation, setRotation] = useState({ y: 0 });
-  const [scale, setScale] = useState(1);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTelemetryData = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/all-telemetry/2021/R/1');  // Update URL accordingly
+        const response = await axios.get('http://localhost:8000/all-telemetry/2021/R/19');  // Update URL accordingly
         setTelemetryData(response.data);
         setLoading(false);
       } catch (error) {
