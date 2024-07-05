@@ -108,6 +108,7 @@ function MovingBox({ driverName, path, duration, speedData, color }) {
 export default function Test() {
   const [telemetryData, setTelemetryData] = useState({});
   const [loading, setLoading] = useState(true);
+  const requestMade = useRef(false);
 
   useEffect(() => {
     const fetchTelemetryData = async () => {
@@ -120,7 +121,10 @@ export default function Test() {
       }
     };
 
-    fetchTelemetryData();
+    if (!requestMade.current) {
+      requestMade.current = true;
+      fetchTelemetryData();
+    }
   }, []);
 
   return (
