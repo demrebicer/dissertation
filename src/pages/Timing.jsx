@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import accurateInterval from "accurate-interval";
 
 const formatTime = (totalSeconds) => {
   const hours = Math.floor(totalSeconds / 3600);
@@ -20,9 +21,10 @@ const Timing = () => {
   const [maxLaps, setMaxLaps] = useState(0);
   const [time, setTime] = useState(0);
   const [startTime, setStartTime] = useState(0);
+  const [manualStartTime, setManualStartTime] = useState(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const requestMade = useRef(false);
-  const startTimestamp = useRef(null);
+  const startTimestamp = useRef(0);
 
   useEffect(() => {
     if (!requestMade.current) {
@@ -36,12 +38,6 @@ const Timing = () => {
           setStreamData(response.data.stream_data);
           setCurrentLap(1);
 
-          const driver33 = response.data.stream_data.filter((entry) => entry.Driver === "33");
-          console.log(driver33);
-
-          const driver33laps = response.data.laps_data.filter((entry) => entry.Driver === "33");
-          console.log(driver33laps);
-
           const driverWithMaxLaps = data.reduce((prev, current) => {
             return prev.NumberOfLaps > current.NumberOfLaps ? prev : current;
           });
@@ -49,15 +45,9 @@ const Timing = () => {
           setMaxLaps(driverWithMaxLaps.NumberOfLaps);
 
           if (data.length > 0) {
-            const minStreamTime = Math.min(
-              ...response.data.stream_data
-                .filter((entry) => entry.GapToLeader !== null && entry.IntervalToPositionAhead !== null)
-                .map((entry) => parseFloat(entry.Time))
-            );
-
-            setStartTime(parseFloat(response.data.session_start_time));
-            setTime(parseFloat(response.data.session_start_time));
-
+            const sessionStartTime = parseFloat(response.data.session_start_time);
+            setStartTime(sessionStartTime);
+            setTime(sessionStartTime);
             setDataLoaded(true);
             startTimestamp.current = Date.now();
           }
@@ -69,14 +59,23 @@ const Timing = () => {
   }, []);
 
   useEffect(() => {
+    let interval;
     if (dataLoaded) {
-      const interval = setInterval(() => {
-        setTime(startTime + Math.floor((Date.now() - startTimestamp.current) / 1000));
-      }, 1000);
+      interval = accurateInterval(() => {
+        const now = Date.now();
+        const elapsedTime = Math.floor((now - startTimestamp.current) / 1000);
+        const newTime = (manualStartTime !== null ? manualStartTime : startTime) + elapsedTime;
 
-      return () => clearInterval(interval);
+        setTime(newTime);
+      }, 1000, { aligned: true, immediate: true });
     }
-  }, [dataLoaded, startTime]);
+
+    return () => {
+      if (interval) {
+        interval.clear();
+      }
+    };
+  }, [dataLoaded, startTime, manualStartTime]);
 
   useEffect(() => {
     const maxCompletedLap = lapsData.reduce((maxLap, lap) => {
@@ -116,7 +115,11 @@ const Timing = () => {
   const handleSkipNextLap = () => {
     const nextLap = lapsData.find((lap) => lap.NumberOfLaps === currentLap + 1);
     if (nextLap) {
-      setTime(parseFloat(nextLap.Time));
+      const nextLapTime = parseFloat(nextLap.Time);
+      setManualStartTime(nextLapTime);
+      setTime(nextLapTime);
+      setCurrentLap(currentLap + 1);
+      startTimestamp.current = Date.now();
     }
   };
 
