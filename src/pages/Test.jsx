@@ -113,7 +113,7 @@ export default function Test() {
   useEffect(() => {
     const fetchTelemetryData = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/all-telemetry/2021/R/19');  // Update URL accordingly
+        const response = await axios.get('http://localhost:8000/all-telemetry/2021/R/1');  // Update URL accordingly
         setTelemetryData(response.data);
         setLoading(false);
       } catch (error) {

@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useCallback } from "react";
 import axios from "axios";
 import accurateInterval from "accurate-interval";
 import "../assets/styles/positionsTable.scss";
 import { FaAngleDoubleRight } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
+import { useStore } from "../utils/newStore";
 
 const formatTime = (totalSeconds) => {
   const hours = Math.floor(totalSeconds / 3600);
@@ -18,52 +19,33 @@ const formatTime = (totalSeconds) => {
 };
 
 const PositionsTable = () => {
-  const [lapsData, setLapsData] = useState([]);
-  const [streamData, setStreamData] = useState([]);
-  const [completedLapsData, setCompletedLapsData] = useState({});
-  const [driverStatusData, setDriverStatusData] = useState({});
-  const [currentLap, setCurrentLap] = useState(0);
-  const [maxLaps, setMaxLaps] = useState(0);
-  const [time, setTime] = useState(0);
-  const [startTime, setStartTime] = useState(0);
-  const [manualStartTime, setManualStartTime] = useState(null);
-  const [dataLoaded, setDataLoaded] = useState(false);
-  const requestMade = useRef(false);
-  const startTimestamp = useRef(0);
-  const sessionEndTime = useRef(0);
-
-  const [isAllDriversFinished, setIsAllDriversFinished] = useState(false);
-
-  useEffect(() => {
-    if (!requestMade.current) {
-      requestMade.current = true;
-
-      axios
-        .get("http://localhost:8000/timing/2021/R")
-        .then((response) => {
-          const data = response.data.laps_data;
-          setLapsData(data);
-          setStreamData(response.data.stream_data);
-          setCompletedLapsData(response.data.completed_laps); // Tamamlanan turlar verisi
-          setDriverStatusData(response.data.driver_status); // Sürücü durumu verisi
-          setCurrentLap(1);
-          setMaxLaps(response.data.total_laps);
-
-          if (data.length > 0) {
-            const sessionStartTime = parseFloat(response.data.session_start_time);
-            const endTime = parseFloat(response.data.session_end_time);
-            setStartTime(sessionStartTime);
-            setTime(sessionStartTime);
-            sessionEndTime.current = endTime;
-            setDataLoaded(true);
-            startTimestamp.current = Date.now();
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching the data:", error);
-        });
-    }
-  }, []);
+  const {
+    lapsData,
+    setLapsData,
+    streamData,
+    setStreamData,
+    completedLapsData,
+    setCompletedLapsData,
+    driverStatusData,
+    setDriverStatusData,
+    currentLap,
+    setCurrentLap,
+    maxLaps,
+    setMaxLaps,
+    time,
+    setTime,
+    startTime,
+    setStartTime,
+    manualStartTime,
+    setManualStartTime,
+    dataLoaded,
+    setDataLoaded,
+    driverPositions,
+    setDriverPositions,
+    requestMade,
+    startTimestamp,
+    sessionEndTime,
+  } = useStore((state) => state);
 
   useEffect(() => {
     let interval;
@@ -80,7 +62,7 @@ const PositionsTable = () => {
 
           setTime(newTime);
 
-          const nextLap = lapsData.find((lap) => parseFloat(lap.Time) > time);
+          const nextLap = lapsData.find((lap) => parseFloat(lap.Time) > newTime);
           if (nextLap) {
             const lapIndex = lapsData.indexOf(nextLap);
             if (currentLap !== lapIndex + 1 && lapIndex + 1 <= maxLaps) {
@@ -89,6 +71,10 @@ const PositionsTable = () => {
           } else if (currentLap !== lapsData.length + 1 && lapsData.length + 1 <= maxLaps) {
             setCurrentLap(lapsData.length + 1);
           }
+
+          // Driver positions data update
+          const updatedDriverPositions = getDriverPositions(newTime, currentLap);
+          setDriverPositions(updatedDriverPositions);
         },
         1000,
         { aligned: true, immediate: true },
@@ -100,61 +86,120 @@ const PositionsTable = () => {
         interval.clear();
       }
     };
-  }, [dataLoaded, startTime, manualStartTime, lapsData, currentLap, time, maxLaps]);
+  }, [dataLoaded, startTime, manualStartTime, lapsData, currentLap, maxLaps]);
 
-  const getCurrentPositionData = (driver) => {
-    const currentTimeData = streamData
-      .filter((entry) => entry.Driver === driver)
-      .reduce((closest, entry) => {
-        const entryTime = parseFloat(entry.Time);
-        if (entryTime <= time && (!closest || entryTime > parseFloat(closest.Time))) {
-          return entry;
+  const getDriverPositions = useCallback(
+    (currentTime, currentLap) => {
+      const currentLapData = lapsData.filter((lap) => lap.NumberOfLaps === currentLap);
+      const driversInCurrentLap = new Set(currentLapData.map((lap) => lap.Driver));
+
+      // Add DNF drivers to currentLapData
+      const dnfDrivers = Object.keys(driverStatusData).filter(
+        (driver) => driverStatusData[driver] === "DNF" && !driversInCurrentLap.has(driver),
+      );
+
+      dnfDrivers.forEach((driver) => {
+        const teamColor = lapsData.find((lap) => lap.Driver === driver)?.TeamColor || "transparent";
+        currentLapData.push({ Driver: driver, TeamColor: teamColor });
+      });
+
+      const updatedDriverPositions = currentLapData.map((lap) => {
+        const positionData = getCurrentPositionData(lap.Driver, currentTime, currentLap);
+        return { ...lap, ...positionData };
+      });
+
+      // Add +1 Lap drivers
+      const plusOneLapDrivers = Object.keys(completedLapsData).filter(
+        (driver) => completedLapsData[driver] === currentLap - 1 && !driversInCurrentLap.has(driver),
+      );
+
+      plusOneLapDrivers.forEach((driver) => {
+        const teamColor = lapsData.find((lap) => lap.Driver === driver)?.TeamColor || "transparent";
+        const driverData = getCurrentPositionData(driver, currentTime, currentLap);
+        updatedDriverPositions.push({ Driver: driver, TeamColor: teamColor, ...driverData });
+      });
+
+      const allDrivers = updatedDriverPositions.reduce((acc, lap) => {
+        if (!acc.some((driver) => driver.Driver === lap.Driver)) {
+          acc.push(lap);
         }
-        return closest;
-      }, null);
-  
-    const completedLaps = completedLapsData[driver];
-    const driverStatus = driverStatusData[driver];
-  
-    if (!currentTimeData) {
-      if (driverStatus === "DNF") {
-        return { Position: "DNF", GapToLeader: "DNF", IntervalToPositionAhead: "DNF" };
-      } else if (completedLaps === maxLaps - 1) {
-        return { Position: lapsData.length + 1, GapToLeader: "+1 Lap", IntervalToPositionAhead: "+1 Lap" };
-      } else {
-        return { Position: lapsData.length + 1, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
+        return acc;
+      }, []);
+
+      const sortedLapsData = allDrivers.sort((a, b) => {
+        if (a.Position === "DNF") return 1;
+        if (b.Position === "DNF") return -1;
+        if (a.Position === "Finished") return -1;
+        if (b.Position === "Finished") return 1;
+        return a.Position - b.Position;
+      });
+
+      const uniquePositions = new Set();
+      sortedLapsData.forEach((lap, index) => {
+        if (uniquePositions.has(lap.Position)) {
+          lap.Position = index + 1;
+        }
+        uniquePositions.add(lap.Position);
+      });
+
+      return sortedLapsData;
+    },
+    [lapsData, driverStatusData, completedLapsData],
+  );
+
+  const getCurrentPositionData = useCallback(
+    (driver, currentTime, currentLap) => {
+      const currentTimeData = streamData
+        .filter((entry) => entry.Driver === driver && parseFloat(entry.Time) <= currentTime)
+        .reduce((closest, entry) => {
+          const entryTime = parseFloat(entry.Time);
+          if (!closest || entryTime > parseFloat(closest.Time)) {
+            return entry;
+          }
+          return closest;
+        }, null);
+
+      const completedLaps = completedLapsData[driver];
+      const driverStatus = driverStatusData[driver];
+
+      if (!currentTimeData) {
+        if (driverStatus === "DNF") {
+          return { Position: "DNF", GapToLeader: "DNF", IntervalToPositionAhead: "DNF" };
+        } else if (completedLaps === maxLaps - 1) {
+          return { Position: lapsData.length + 1, GapToLeader: "+1 Lap", IntervalToPositionAhead: "+1 Lap" };
+        } else {
+          return { Position: lapsData.length + 1, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
+        }
       }
-    }
-  
-    // Eğer son turdaysak ve sürücü bitirmişse
-    if (currentLap === maxLaps) {
-      if (time >= sessionEndTime.current) {
-        // Seans bitmişse, DNF olmayan herkes finished olacak
-        if (driverStatus !== "DNF") {
-          return { ...currentTimeData, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
+
+      if (currentLap === maxLaps) {
+        if (currentTime >= sessionEndTime.current) {
+          if (driverStatus !== "DNF") {
+            return { ...currentTimeData, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
+          }
+        } else if (driverStatus === "Finished") {
+          const lastStreamData = streamData
+            .filter((entry) => entry.Driver === driver)
+            .reduce((latest, entry) => {
+              const entryTime = parseFloat(entry.Time);
+              if (!latest || entryTime > parseFloat(latest.Time)) {
+                return entry;
+              }
+              return latest;
+            }, null);
+
+          if (lastStreamData && parseFloat(lastStreamData.Time) <= currentTime) {
+            return { ...currentTimeData, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
+          }
+        } else if (driverStatus === "+1 Lap" && currentLap > completedLapsData[driver]) {
+          return { ...currentTimeData, GapToLeader: "+1 Lap", IntervalToPositionAhead: "+1 Lap" };
         }
-      } else if (driverStatus === "Finished") {
-        const lastStreamData = streamData
-          .filter((entry) => entry.Driver === driver)
-          .reduce((latest, entry) => {
-            const entryTime = parseFloat(entry.Time);
-            if (!latest || entryTime > parseFloat(latest.Time)) {
-              return entry;
-            }
-            return latest;
-          }, null);
-  
-        if (lastStreamData && parseFloat(lastStreamData.Time) <= time) {
-          return { ...currentTimeData, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
-        }
-      } else if (driverStatus === "+1 Lap" && currentLap > completedLapsData[driver]) {
-        return { ...currentTimeData, GapToLeader: "+1 Lap", IntervalToPositionAhead: "+1 Lap" };
       }
-    }
-  
-    return currentTimeData;
-  };
-  
+
+      return currentTimeData;
+    },
+    [streamData, completedLapsData, driverStatusData, maxLaps, lapsData],
+  );
 
   const handleSkipNextLap = () => {
     if (currentLap < maxLaps) {
@@ -168,34 +213,6 @@ const PositionsTable = () => {
       }
     }
   };
-
-  const combinedData = lapsData.map((lap) => {
-    const positionData = getCurrentPositionData(lap.Driver);
-    return { ...lap, ...positionData };
-  });
-
-  const allDrivers = combinedData.reduce((acc, lap) => {
-    if (!acc.some((driver) => driver.Driver === lap.Driver)) {
-      acc.push(lap);
-    }
-    return acc;
-  }, []);
-
-  const sortedLapsData = allDrivers.sort((a, b) => {
-    if (a.Position === "DNF") return 1;
-    if (b.Position === "DNF") return -1;
-    if (a.Position === "Finished") return -1;
-    if (b.Position === "Finished") return 1;
-    return a.Position - b.Position;
-  });
-
-  const uniquePositions = new Set();
-  sortedLapsData.forEach((lap, index) => {
-    if (uniquePositions.has(lap.Position)) {
-      lap.Position = index + 1;
-    }
-    uniquePositions.add(lap.Position);
-  });
 
   return (
     <div className="positions-table">
@@ -215,7 +232,7 @@ const PositionsTable = () => {
       </div>
       <div className="separator"></div>
       <div className="drivers">
-        {sortedLapsData.map((driver, index) => {
+        {driverPositions.map((driver, index) => {
           const isDnf = driverStatusData[driver.Driver] === "DNF" && completedLapsData[driver.Driver] < currentLap;
           return (
             <div className="driver" key={index}>
