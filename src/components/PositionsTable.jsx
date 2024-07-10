@@ -45,6 +45,8 @@ const PositionsTable = () => {
     requestMade,
     startTimestamp,
     sessionEndTime,
+    skipNextLap, // Add this to useStore
+    setSkipNextLap, // Add this to useStore
   } = useStore((state) => state);
 
   useEffect(() => {
@@ -210,6 +212,7 @@ const PositionsTable = () => {
         setTime(nextLapTime);
         setCurrentLap(currentLap + 1);
         startTimestamp.current = Date.now();
+        setSkipNextLap(true); // Set the skip flag
       }
     }
   };

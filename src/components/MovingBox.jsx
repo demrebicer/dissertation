@@ -15,6 +15,8 @@ function MovingBox({ driverName, laps, color }) {
   const [distances, setDistances] = useState([]);
   const [adjustedSpeedData, setAdjustedSpeedData] = useState([]);
   const time = useStore((state) => state.time);
+  const skipNextLap = useStore((state) => state.skipNextLap); // Add this to useStore
+  const setSkipNextLap = useStore((state) => state.setSkipNextLap); // Add this to useStore
 
   useEffect(() => {
     if (laps[lapIndexRef.current]) {
@@ -68,39 +70,44 @@ function MovingBox({ driverName, laps, color }) {
       return;
     }
 
-    elapsedTimeRef.current = currentSessionTime;
+    if (skipNextLap) {
+      elapsedTimeRef.current = currentLapData.LapDuration;
+      distanceTraveledRef.current = distances[distances.length - 1];
+      setSkipNextLap(false); // Reset the skip flag
+    } else {
+      elapsedTimeRef.current = currentSessionTime;
 
-    if (elapsedTimeRef.current >= currentLapData.LapDuration) {
-      lapIndexRef.current = (lapIndexRef.current + 1) % laps.length;
+      if (elapsedTimeRef.current >= currentLapData.LapDuration) {
+        lapIndexRef.current = (lapIndexRef.current + 1) % laps.length;
 
-      if (lapIndexRef.current < laps.length) {
-        setCurrentLapData(laps[lapIndexRef.current]);
-        elapsedTimeRef.current = 0;
-        distanceTraveledRef.current = 0;
-        // console.log(`${lapIndexRef.current + 1}. tur`);
+        if (lapIndexRef.current < laps.length) {
+          setCurrentLapData(laps[lapIndexRef.current]);
+          elapsedTimeRef.current = 0;
+          distanceTraveledRef.current = 0;
+        }
       }
+
+      const normalizedTime = elapsedTimeRef.current / currentLapData.LapDuration;
+      const speedIndex = Math.min(Math.floor(normalizedTime * adjustedSpeedData.length), adjustedSpeedData.length - 1);
+      const currentSpeed = adjustedSpeedData[speedIndex];
+
+      const distanceTraveledInFrame = currentSpeed * delta;
+      distanceTraveledRef.current += distanceTraveledInFrame;
+      const distanceTraveled = Math.min(distanceTraveledRef.current, distances[distances.length - 1]);
+
+      let pointIndex = distances.findIndex((distance) => distance >= distanceTraveled);
+      if (pointIndex === -1) pointIndex = distances.length - 1;
+
+      const pointOnCurve = spacedPoints[pointIndex];
+      const nextPointOnCurve = spacedPoints[(pointIndex + 1) % spacedPoints.length];
+
+      meshRef.current.position.copy(pointOnCurve);
+
+      const forwardDirection = new THREE.Vector3().subVectors(nextPointOnCurve, pointOnCurve).normalize();
+      const targetQuaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), forwardDirection);
+
+      meshRef.current.quaternion.slerp(targetQuaternion, 0.1);
     }
-
-    const normalizedTime = elapsedTimeRef.current / currentLapData.LapDuration;
-    const speedIndex = Math.min(Math.floor(normalizedTime * adjustedSpeedData.length), adjustedSpeedData.length - 1);
-    const currentSpeed = adjustedSpeedData[speedIndex];
-
-    const distanceTraveledInFrame = currentSpeed * delta;
-    distanceTraveledRef.current += distanceTraveledInFrame;
-    const distanceTraveled = Math.min(distanceTraveledRef.current, distances[distances.length - 1]);
-
-    let pointIndex = distances.findIndex((distance) => distance >= distanceTraveled);
-    if (pointIndex === -1) pointIndex = distances.length - 1;
-
-    const pointOnCurve = spacedPoints[pointIndex];
-    const nextPointOnCurve = spacedPoints[(pointIndex + 1) % spacedPoints.length];
-
-    meshRef.current.position.copy(pointOnCurve);
-
-    const forwardDirection = new THREE.Vector3().subVectors(nextPointOnCurve, pointOnCurve).normalize();
-    const targetQuaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), forwardDirection);
-
-    meshRef.current.quaternion.slerp(targetQuaternion, 0.1);
   });
 
   if (!currentLapData || !points.length) {

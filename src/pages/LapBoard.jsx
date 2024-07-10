@@ -11,7 +11,12 @@ export default function LapBoard() {
   const [telemetryData, setTelemetryData] = useState({});
   const [loading, setLoading] = useState(true);
   const requestMade = useRef(false);
-  const { setLapsData, setStreamData, setCompletedLapsData, setDriverStatusData, setCurrentLap, setMaxLaps, setStartTime, setTime, setDataLoaded, startTimestamp, sessionEndTime } = useStore();
+  const {
+    currentLap, setLapsData, setStreamData, setCompletedLapsData,
+    setDriverStatusData, setCurrentLap, setMaxLaps, setStartTime,
+    setTime, setDataLoaded, startTimestamp, sessionEndTime,
+    setSkipNextLap // Add this to useStore
+  } = useStore();
 
   useEffect(() => {
     const fetchTelemetryData = async () => {
@@ -60,7 +65,7 @@ export default function LapBoard() {
       <PositionsTable />
 
       <Canvas camera={{ position: [0, 200, 300], fov: 50 }}>
-        <ambientLight intensity={2} />
+        <ambientLight intensity={3.5} />
         <directionalLight
           castShadow
           position={[20, 50, 20]}
@@ -78,6 +83,7 @@ export default function LapBoard() {
 
         {!loading && 
           Object.keys(telemetryData).map((driverCode) => {
+
             return (
               <MovingBox
                 key={driverCode}

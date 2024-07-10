@@ -28,6 +28,8 @@ const useStore = create((set) => ({
   sessionEndTime: { current: 0 },
   manualSkip: false,
   setManualSkip: (skip) => set({ manualSkip: skip }),
+  skipNextLap: false,
+  setSkipNextLap: (value) => set({ skipNextLap: value }),
 }));
 
 export { useStore } 
