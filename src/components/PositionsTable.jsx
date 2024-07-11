@@ -45,8 +45,9 @@ const PositionsTable = () => {
     requestMade,
     startTimestamp,
     sessionEndTime,
-    skipNextLap, // Add this to useStore
-    setSkipNextLap, // Add this to useStore
+    skipNextLap, 
+    setSkipNextLap, 
+    setDriverList,
   } = useStore((state) => state);
 
   useEffect(() => {
@@ -144,6 +145,32 @@ const PositionsTable = () => {
         uniquePositions.add(lap.Position);
       });
 
+      // Get driver names who have finished the race
+      const finishedDrivers = updatedDriverPositions
+        .filter((driver) => driver.GapToLeader === "Finished")
+        .map((driver) => {
+          const lap = lapsData.find((lap) => lap.Driver === driver.Driver);
+          return lap ? lap.DriverName : driver.Driver;
+        });
+
+      // Get driver names for DNF drivers
+      const dnfDriverNames = dnfDrivers.map((driver) => {
+        const lap = lapsData.find((lap) => lap.Driver === driver);
+        return lap ? lap.DriverName : driver;
+      });
+
+      // Get all driver names
+      const allDriverNames = lapsData.filter((lap) => lap.NumberOfLaps === 1).map((lap) => lap.DriverName);
+
+      // Create an object with driver names and their DNF status
+      const driverList = {};
+      allDriverNames.forEach((driver) => {
+        driverList[driver] = !dnfDriverNames.includes(driver) && !finishedDrivers.includes(driver);
+      });
+
+      // console.log(driverList);
+      setDriverList(driverList);
+
       return sortedLapsData;
     },
     [lapsData, driverStatusData, completedLapsData],
@@ -179,22 +206,20 @@ const PositionsTable = () => {
           if (driverStatus !== "DNF") {
             return { ...currentTimeData, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
           }
-        } else if (driverStatus === "Finished") {
-          const lastStreamData = streamData
-            .filter((entry) => entry.Driver === driver)
-            .reduce((latest, entry) => {
-              const entryTime = parseFloat(entry.Time);
-              if (!latest || entryTime > parseFloat(latest.Time)) {
-                return entry;
-              }
-              return latest;
-            }, null);
-
-          if (lastStreamData && parseFloat(lastStreamData.Time) <= currentTime) {
+        } else {
+          const lastLapEndTime = lapsData
+          .filter((lap) => lap.Driver === driver)
+          .reduce((latest, lap) => {
+            const lapTime = parseFloat(lap.Time);
+            if (!latest || lapTime > parseFloat(latest.Time)) {
+              return lap;
+            }
+            return latest;
+          }, null);
+          
+          if (lastLapEndTime && parseFloat(lastLapEndTime.Time) <= currentTime) {
             return { ...currentTimeData, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
           }
-        } else if (driverStatus === "+1 Lap" && currentLap > completedLapsData[driver]) {
-          return { ...currentTimeData, GapToLeader: "+1 Lap", IntervalToPositionAhead: "+1 Lap" };
         }
       }
 

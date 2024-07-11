@@ -14,9 +14,12 @@ function MovingBox({ driverName, laps, color }) {
   const [spacedPoints, setSpacedPoints] = useState([]);
   const [distances, setDistances] = useState([]);
   const [adjustedSpeedData, setAdjustedSpeedData] = useState([]);
-  const time = useStore((state) => state.time);
-  const skipNextLap = useStore((state) => state.skipNextLap); // Add this to useStore
-  const setSkipNextLap = useStore((state) => state.setSkipNextLap); // Add this to useStore
+
+  const {
+    time,
+    skipNextLap,
+    setSkipNextLap
+  } = useStore((state) => state);
 
   useEffect(() => {
     if (laps[lapIndexRef.current]) {

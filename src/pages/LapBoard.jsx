@@ -15,7 +15,7 @@ export default function LapBoard() {
     currentLap, setLapsData, setStreamData, setCompletedLapsData,
     setDriverStatusData, setCurrentLap, setMaxLaps, setStartTime,
     setTime, setDataLoaded, startTimestamp, sessionEndTime,
-    setSkipNextLap // Add this to useStore
+    setSkipNextLap, driverList
   } = useStore();
 
   useEffect(() => {
@@ -81,19 +81,19 @@ export default function LapBoard() {
 
         <RaceTrack />
 
-        {!loading && 
+        {!loading &&
           Object.keys(telemetryData).map((driverCode) => {
-
-            return (
-              <MovingBox
-                key={driverCode}
-                driverName={driverCode}
-                laps={telemetryData[driverCode]}
-                color={telemetryData[driverCode][0].TeamColor}
-              />
-            );
-          })
-        }
+            if (driverList[driverCode] === true) {
+              return (
+                <MovingBox
+                  key={driverCode}
+                  driverName={driverCode}
+                  laps={telemetryData[driverCode]}
+                  color={telemetryData[driverCode][0].TeamColor}
+                />
+              );
+            }
+          })}
 
         <Sky sunPosition={[20, 50, 20]} />
         <OrbitControls maxDistance={850} />

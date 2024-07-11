@@ -30,6 +30,8 @@ const useStore = create((set) => ({
   setManualSkip: (skip) => set({ manualSkip: skip }),
   skipNextLap: false,
   setSkipNextLap: (value) => set({ skipNextLap: value }),
+  driverList: [],
+  setDriverList: (list) => set({ driverList: list }),
 }));
 
 export { useStore } 
