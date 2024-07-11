@@ -32,6 +32,16 @@ const useStore = create((set) => ({
   setSkipNextLap: (value) => set({ skipNextLap: value }),
   driverList: [],
   setDriverList: (list) => set({ driverList: list }),
+  driversVisibility: [],
+  toggleDriverVisibility: (driver) => {
+    set((state) => {
+      if (state.driversVisibility.includes(driver)) {
+        return { driversVisibility: state.driversVisibility.filter((d) => d !== driver) };
+      } else {
+        return { driversVisibility: [...state.driversVisibility, driver] };
+      }
+    });
+  },
 }));
 
 export { useStore } 

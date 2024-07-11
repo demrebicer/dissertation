@@ -3,7 +3,7 @@
   top: 5%;
   left: 2%;
   z-index: 1;
-  width: 257px;
+  width: 260px;
   background: rgba(0, 0, 0, 0.7);
   font-family: "Formula1", Arial, sans-serif;
   color: white;
@@ -117,6 +117,19 @@
         font-size: 16px;
         line-height: 19px;
         color: #ffffff;
+      }
+
+      .visible-toggle{
+        position: absolute;
+        width: 59px;
+        height: 19px;
+        left: 228px;
+        top: 6px;
+        font-size: 16px;
+        line-height: 19px;
+        color: #ffffff;
+        cursor: pointer;
+        user-select: none; /* Metin seçimini engeller */
       }
     }
   }

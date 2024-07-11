@@ -83,7 +83,7 @@ export default function LapBoard() {
 
         {!loading &&
           Object.keys(telemetryData).map((driverCode) => {
-            if (driverList[driverCode] === true) {
+            if (driverList[driverCode] === true){
               return (
                 <MovingBox
                   key={driverCode}

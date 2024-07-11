@@ -2,7 +2,7 @@ import React, { useEffect, useCallback } from "react";
 import axios from "axios";
 import accurateInterval from "accurate-interval";
 import "../assets/styles/positionsTable.scss";
-import { FaAngleDoubleRight } from "react-icons/fa";
+import { FaAngleDoubleRight, FaEye, FaEyeSlash } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
 import { useStore } from "../utils/newStore";
 
@@ -48,6 +48,8 @@ const PositionsTable = () => {
     skipNextLap, 
     setSkipNextLap, 
     setDriverList,
+    driversVisibility,
+    toggleDriverVisibility
   } = useStore((state) => state);
 
   useEffect(() => {
@@ -271,6 +273,23 @@ const PositionsTable = () => {
               <div className="abbreviation">{driver.DriverName}</div>
               <div className="interval-to-position-ahead">
                 {driver.Position === 1 ? "Leader" : isDnf ? "DNF" : driver.IntervalToPositionAhead}
+              </div>
+              <div className="visible-toggle">
+                {driversVisibility.includes(driver.DriverName) ? (
+                  <FaEyeSlash
+                    size={24}
+                    onClick={() => {
+                      toggleDriverVisibility(driver.DriverName);
+                    }}
+                  />
+                ) : (
+                  <FaEye
+                    size={24}
+                    onClick={() => {
+                      toggleDriverVisibility(driver.DriverName);
+                    }}
+                  />
+                )}
               </div>
             </div>
           );

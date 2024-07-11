@@ -18,7 +18,8 @@ function MovingBox({ driverName, laps, color }) {
   const {
     time,
     skipNextLap,
-    setSkipNextLap
+    setSkipNextLap,
+    driversVisibility
   } = useStore((state) => state);
 
   useEffect(() => {
@@ -117,27 +118,32 @@ function MovingBox({ driverName, laps, color }) {
     return null;
   }
 
+  const isVisible = !driversVisibility.includes(driverName);
+
   return (
-    <DreiBox ref={meshRef} args={[1, 1, 1]} position={[points[0]?.x || 0, points[0]?.y || 0, points[0]?.z || 0]}>
+    <DreiBox visible={isVisible} ref={meshRef} args={[1, 1, 1]} position={[points[0]?.x || 0, points[0]?.y || 0, points[0]?.z || 0]}>
       <meshStandardMaterial attach="material" color={color} />
-      <Html distanceFactor={10} position={[0, 1.5, 0]}>
-        <div
-          style={{
-            background: 'rgba(0, 0, 0, 0.5)',
-            padding: '5px 25px',
-            fontSize: '128px',
-            color: 'white',
-            borderRadius: '5px',
-            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
-            transform: 'translate3d(-50%, -50%, 0)',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {driverName}
-        </div>
-      </Html>
+      {isVisible && (
+        <Html distanceFactor={10} position={[0, 1.5, 0]}>
+          <div
+            style={{
+              background: 'rgba(0, 0, 0, 0.5)',
+              padding: '5px 25px',
+              fontSize: '128px',
+              color: 'white',
+              borderRadius: '5px',
+              boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+              transform: 'translate3d(-50%, -50%, 0)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {driverName}
+          </div>
+        </Html>
+      )}
     </DreiBox>
   );
 }
 
 export default MovingBox;
+
