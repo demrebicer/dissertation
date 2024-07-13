@@ -18,33 +18,18 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
   const {
     selectedYear,
     setSelectedYear,
-    drivers,
-    laps,
-    selectedLap,
     setSelectedLap,
-    isDriverSelectDisabled,
-    isLapSelectDisabled,
     cameraMode,
     setCameraMode,
     toggleRacingLineVisibility,
     isRacingLineVisible,
-    setDrivers,
     setIsDriverSelectDisabled,
     setIsLapSelectDisabled,
-    setLaps,
-    setLoading,
-    setTelemetryData,
-    setLapDuration,
-    lapDuration,
     currentLapTime,
-    setSpeedData,
-    setBrakeData,
-    currentSpeed,
     selectedType,
     setSelectedType,
     isYearSelectDisabled,
     setIsYearSelectDisabled,
-    setRpmData,
     setCurrentLapTime,
     setCurrentSpeed,
     currentWeather,
@@ -130,13 +115,6 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
       setCurrentFlag(null);
     }
   }, [flags, currentLapTime]);
-
-  const formatLapTime = (duration) => {
-    const minutes = Math.floor(duration / 60);
-    const seconds = Math.floor(duration % 60);
-    const milliseconds = Math.floor((duration * 1000) % 1000);
-    return `${minutes}:${seconds.toString().padStart(2, "0")}:${milliseconds.toString().padStart(3, "0")}`;
-  };
 
   return (
     <div>
