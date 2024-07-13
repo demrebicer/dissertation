@@ -1,65 +1,17 @@
 import { create } from "zustand";
 
 const useStore = create((set) => ({
-  lapsData: [],
-  setLapsData: (data) => set({ lapsData: data }),
-  streamData: [],
-  setStreamData: (data) => set({ streamData: data }),
-  completedLapsData: {},
-  setCompletedLapsData: (data) => set({ completedLapsData: data }),
-  driverStatusData: {},
-  setDriverStatusData: (data) => set({ driverStatusData: data }),
-  currentLap: 0,
-  setCurrentLap: (lap) => set({ currentLap: lap }),
-  maxLaps: 0,
-  setMaxLaps: (laps) => set({ maxLaps: laps }),
-  time: 0,
-  setTime: (time) => set({ time: time }),
-  startTime: 0,
-  setStartTime: (time) => set({ startTime: time }),
-  manualStartTime: null,
-  setManualStartTime: (time) => set({ manualStartTime: time }),
-  dataLoaded: false,
-  setDataLoaded: (loaded) => set({ dataLoaded: loaded }),
-  driverPositions: [],
-  setDriverPositions: (positions) => set({ driverPositions: positions }),
-  requestMade: { current: false },
-  startTimestamp: { current: 0 },
-  sessionEndTime: { current: 0 },
-  manualSkip: false,
-  setManualSkip: (skip) => set({ manualSkip: skip }),
-  skipNextLap: false,
-  setSkipNextLap: (value) => set({ skipNextLap: value }),
-  driverList: [],
-  setDriverList: (list) => set({ driverList: list }),
-  driversVisibility: [],
-  toggleDriverVisibility: (driver) => {
-    set((state) => {
-      if (state.driversVisibility.includes(driver)) {
-        return { driversVisibility: state.driversVisibility.filter((d) => d !== driver) };
-      } else {
-        return { driversVisibility: [...state.driversVisibility, driver] };
-      }
-    });
-  },
-  
-  selectedDriver: "HAM",
-  setSelectedDriver: (driver) => set({ selectedDriver: driver }),
-
-  cameraMode: "free",
-  setCameraMode: (mode) => set({ cameraMode: mode }),
-
-  loading: true,
-  setLoading: (value) => set({ loading: value }),
-
   telemetryData: null,
   lapDuration: null,
   selectedYear: null,
+  selectedDriver: null,
   selectedLap: null,
   drivers: [],
   laps: [],
   isDriverSelectDisabled: true,
   isLapSelectDisabled: true,
+  loading: false,
+  cameraMode: "free",
   isRacingLineVisible: false,
   translation: { x: 0, z: 0 },
   rotation: { x: 0 },
@@ -67,11 +19,14 @@ const useStore = create((set) => ({
   setTelemetryData: (data) => set({ telemetryData: data }),
   setLapDuration: (data) => set({ lapDuration: data }),
   setSelectedYear: (year) => set({ selectedYear: year }),
+  setSelectedDriver: (driver) => set({ selectedDriver: driver }),
   setSelectedLap: (lap) => set({ selectedLap: lap }),
   setDrivers: (drivers) => set({ drivers }),
   setLaps: (laps) => set({ laps }),
   setIsDriverSelectDisabled: (isDisabled) => set({ isDriverSelectDisabled: isDisabled }),
   setIsLapSelectDisabled: (isDisabled) => set({ isLapSelectDisabled: isDisabled }),
+  setLoading: (isLoading) => set({ loading: isLoading }),
+  setCameraMode: (mode) => set({ cameraMode: mode }),
   toggleRacingLineVisibility: () => set((state) => ({ isRacingLineVisible: !state.isRacingLineVisible })),
   setTranslation: (translation) => set({ translation }),
   setRotation: (rotation) => set({ rotation }),
@@ -94,4 +49,4 @@ const useStore = create((set) => ({
   setIsSoundMuted: (isMuted) => set({ isSoundMuted: isMuted }),
 }));
 
-export { useStore }
+export default useStore;

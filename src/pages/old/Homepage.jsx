@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import FullPageLoader from "../../components/FullPageLoader";
 import "../assets/styles/homepage.scss";
-import useStore from "../../utils/store";
+import useStore from "./store";
 
 const Homepage = () => {
   const {

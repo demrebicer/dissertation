@@ -4,7 +4,7 @@ import accurateInterval from "accurate-interval";
 import "../assets/styles/positionsTable.scss";
 import { FaAngleDoubleRight, FaEye, FaEyeSlash } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
-import { useStore } from "../utils/newStore";
+import { useStore } from "../utils/store";
 
 const formatTime = (totalSeconds) => {
   const hours = Math.floor(totalSeconds / 3600);
@@ -49,7 +49,9 @@ const PositionsTable = () => {
     setSkipNextLap, 
     setDriverList,
     driversVisibility,
-    toggleDriverVisibility
+    toggleDriverVisibility,
+    selectedDriver,
+    setSelectedDriver,
   } = useStore((state) => state);
 
   useEffect(() => {
@@ -264,8 +266,20 @@ const PositionsTable = () => {
       <div className="drivers">
         {driverPositions.map((driver, index) => {
           const isDnf = driverStatusData[driver.Driver] === "DNF" && completedLapsData[driver.Driver] < currentLap;
+          
           return (
-            <div className="driver" key={index}>
+            <div
+              className="driver"
+              key={index}
+              style={{
+                background: driver.DriverName === selectedDriver ? "rgba(255, 255, 255, 0.2)" : "transparent",
+              }}
+              onClick={(e) => {
+                if (!e.target.closest(".visible-toggle") && !driversVisibility.includes(driver.DriverName)) {
+                  setSelectedDriver(driver.DriverName);
+                }
+              }}
+            >
               <div className="position-container">
                 <div className="position">{driver.Position}</div>
               </div>

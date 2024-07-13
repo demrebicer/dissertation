@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
-import useStore from "../utils/store";
+import { useStore } from "../utils/store";
 import axios from "axios";
 import FlagIndicator from "./FlagIndicator";
 import RacingLineControls from "./RacingLineControls";
@@ -19,8 +19,6 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     selectedYear,
     setSelectedYear,
     drivers,
-    selectedDriver,
-    setSelectedDriver,
     laps,
     selectedLap,
     setSelectedLap,
@@ -82,15 +80,12 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
   };
 
   const resetAfterYear = () => {
-    setSelectedDriver(null);
     resetAfterDriver();
-    setDrivers([]);
     setIsDriverSelectDisabled(true);
   };
 
   const resetAfterDriver = () => {
     setSelectedLap(null);
-    setLaps([]);
     setCurrentLapTime(0);
     setCurrentSpeed(0);
     setIsLapSelectDisabled(true);
@@ -102,90 +97,6 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
       setIsYearSelectDisabled(false);
     }
   }, [selectedType]);
-
-  useEffect(() => {
-    if (selectedYear) {
-      setLoading(true);
-      axios
-        .get(`http://localhost:8000/drivers/${selectedYear.value}/${selectedType.value}`)
-        .then((response) => {
-          const driverOptions = response.data.map((driver) => ({ value: driver, label: driver }));
-          setDrivers(driverOptions);
-          setSelectedDriver(null);
-          setIsDriverSelectDisabled(false);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error fetching drivers:", error);
-          setIsDriverSelectDisabled(true);
-          setLoading(false);
-        });
-    } else {
-      resetAfterYear();
-    }
-  }, [selectedYear, selectedType]);
-
-  useEffect(() => {
-    if (selectedDriver) {
-      setLoading(true);
-      axios
-        .get(`http://localhost:8000/laps/${selectedYear.value}/${selectedType.value}/${selectedDriver.value}`)
-        .then((response) => {
-          const lapOptions = response.data.map((lap) => ({ value: lap, label: `Lap ${lap}` }));
-          setLaps(lapOptions);
-          setSelectedLap(null);
-          setIsLapSelectDisabled(false);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error fetching laps:", error);
-          setIsLapSelectDisabled(true);
-          setLoading(false);
-        });
-    } else {
-      resetAfterDriver();
-    }
-  }, [selectedDriver, selectedYear, selectedType]);
-
-  useEffect(() => {
-    console.log("Selected lap:", selectedLap);
-    if (selectedLap && selectedYear && selectedDriver && selectedType) {
-      setLoading(true);
-      axios
-        .get(`http://localhost:8000/telemetry/${selectedYear.value}/${selectedType.value}/${selectedDriver.value}/${selectedLap.value}`)
-        .then((response) => {
-          const telemetryData = response.data.telemetry;
-          setTelemetryData(telemetryData);
-          setLapDuration(response.data.lap_duration / speedMultiplier); // Adjust lap duration
-          setSpeedData(response.data.speed);
-          setFlags(
-            response.data.flags.map((flag) => ({
-              ...flag,
-              start_time: flag.start_time / speedMultiplier,
-              end_time: flag.end_time / speedMultiplier,
-            })),
-          ); // Adjust flag times
-          setBrakeData(response.data.brake);
-          setRpmData(response.data.rpm);
-          // setIsRaining(response.data.is_rain);
-          setCurrentWeather(response.data?.is_rain ? "rainy" : "sunny");
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error fetching telemetry data:", error);
-          setLoading(false);
-        });
-    } else {
-      setTelemetryData(null);
-      setLapDuration(null);
-      setSpeedData(null);
-      setFlags([]);
-      setBrakeData(null);
-      setRpmData(null);
-      // setIsRaining(null);
-      setCurrentWeather("sunny");
-    }
-  }, [selectedLap]);
 
   useEffect(() => {
     const determineCurrentFlag = (flags, currentTime) => {
@@ -259,24 +170,6 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
             onChange={setSelectedYear}
             isDisabled={isYearSelectDisabled}
             value={selectedYear}
-          />
-          <Select
-            className="select-box"
-            classNamePrefix="select"
-            options={drivers}
-            placeholder="Select Driver"
-            onChange={setSelectedDriver}
-            isDisabled={isDriverSelectDisabled}
-            value={selectedDriver}
-          />
-          <Select
-            className="select-box"
-            classNamePrefix="select"
-            options={laps}
-            placeholder="Select Lap"
-            onChange={setSelectedLap}
-            isDisabled={isLapSelectDisabled}
-            value={selectedLap}
           />
         </div>
 
@@ -393,17 +286,6 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
         <Tooltip id="my-tooltip" place="bottom" />
       </div>
 
-      <div className="live-info">
-        <div className="info-box">
-          <span className="label">Lap Time</span>
-          <span className="value">{formatLapTime(currentLapTime)}</span>
-        </div>
-
-        <div className="info-box">
-          <span className="label">Speed</span>
-          <span className="value">{currentSpeed}</span>
-        </div>
-      </div>
       {currentFlag ? <FlagIndicator type={currentFlag} /> : null}
     </div>
   );

@@ -7,10 +7,10 @@ import Simulation from "../pages/Simulation";
 import Test from "../pages/Test";
 import Tooltip from "../pages/Tooltip";
 import Timing from "../pages/Timing";
-import LapBoard from "../pages/LapBoard";
+// import LapBoard from "../pages/Simulation";
 
 
-import useStore from "../utils/store";
+import useStore from "../pages/old/store";
 
 const RouterHandler = () => {
   const telemetryData = useStore((state) => state.telemetryData);
@@ -22,7 +22,7 @@ const RouterHandler = () => {
       <Route path="/test" element={<Test />} />
       <Route path="/tooltip" element={<Tooltip />} />
       <Route path="/timing" element={<Timing />} />
-      <Route path="/lapboard" element={<LapBoard />} />
+      {/* <Route path="/lapboard" element={<LapBoard />} /> */}
     </Routes>
   );
 };
