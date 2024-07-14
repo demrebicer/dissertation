@@ -12,58 +12,78 @@ import FullPageLoader from "../components/FullPageLoader";
 import SimulationControls from "../components/SimulationControls";
 import Rain from "../components/Rain";
 
-export default function LapBoard() {
+export default function Simulation() {
   const [telemetryData, setTelemetryData] = useState({});
-  const [loading, setLoading] = useState(true);
   const requestMade = useRef(false);
   const {
-    currentLap, setLapsData, setStreamData, setCompletedLapsData,
-    setDriverStatusData, setCurrentLap, setMaxLaps, setStartTime,
-    setTime, setDataLoaded, startTimestamp, sessionEndTime,
-    setSkipNextLap, driverList, currentWeather, cameraMode
+    currentLap,
+    setLapsData,
+    setStreamData,
+    setCompletedLapsData,
+    setDriverStatusData,
+    setCurrentLap,
+    setMaxLaps,
+    setStartTime,
+    setTime,
+    setDataLoaded,
+    startTimestamp,
+    sessionEndTime,
+    setSkipNextLap,
+    driverList,
+    currentWeather,
+    cameraMode,
+    selectedYear,
+    selectedType,
+    loading,
+    setLoading,
+    setFlags,
+    setWeatherData
   } = useStore();
 
-  useEffect(() => {
-    const fetchTelemetryData = async () => {
-      try {
-        const [telemetryResponse, timingResponse] = await Promise.all([
-          axios.get("http://localhost:8000/new-telemetry/2021/R"),
-          axios.get("http://localhost:8000/timing/2021/R")
-        ]);
+  const fetchTelemetryData = async (year, type) => {
+    try {
+      setLoading(true);
+      const [telemetryResponse, timingResponse] = await Promise.all([
+        axios.get(`http://localhost:8000/telemetry/${year}/${type}`),
+        axios.get(`http://localhost:8000/timing/${year}/${type}`),
+      ]);
 
-        // Set telemetry data
-        setTelemetryData(telemetryResponse.data);
+      // Set telemetry data
+      setTelemetryData(telemetryResponse.data);
 
-        // Set timing data
-        const timingData = timingResponse.data.laps_data;
-        setLapsData(timingData);
-        setStreamData(timingResponse.data.stream_data);
-        setCompletedLapsData(timingResponse.data.completed_laps);
-        setDriverStatusData(timingResponse.data.driver_status);
-        setCurrentLap(1);
-        setMaxLaps(timingResponse.data.total_laps);
+      // Set timing data
+      const timingData = timingResponse.data.laps_data;
+      setLapsData(timingData);
+      setStreamData(timingResponse.data.stream_data);
+      setCompletedLapsData(timingResponse.data.completed_laps);
+      setDriverStatusData(timingResponse.data.driver_status);
+      setCurrentLap(1);
+      setMaxLaps(timingResponse.data.total_laps);
+      setFlags(timingResponse.data.track_status);
+      setWeatherData(timingResponse.data.weather_data);
 
-        if (timingData.length > 0) {
-          const sessionStartTime = parseFloat(timingResponse.data.session_start_time);
-          const endTime = parseFloat(timingResponse.data.session_end_time);
-          setStartTime(sessionStartTime);
-          setTime(sessionStartTime);
-          sessionEndTime.current = endTime;
-          setDataLoaded(true);
-          startTimestamp.current = Date.now();
-        }
-
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching data", error);
+      if (timingData.length > 0) {
+        const sessionStartTime = parseFloat(timingResponse.data.session_start_time);
+        const endTime = parseFloat(timingResponse.data.session_end_time);
+        setStartTime(sessionStartTime);
+        setTime(sessionStartTime);
+        sessionEndTime.current = endTime;
+        setDataLoaded(true);
+        startTimestamp.current = Date.now();
       }
-    };
 
-    if (!requestMade.current) {
-      requestMade.current = true;
-      fetchTelemetryData();
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data", error);
+      setLoading(false);
     }
-  }, []);
+  };
+
+  useEffect(() => {
+    if (selectedYear && selectedType) {
+      fetchTelemetryData(selectedYear.value, selectedType.value);
+    }
+  }, [selectedYear, selectedType]);
 
   const [translation, setTranslation] = useState({ x: 0, y: 0, z: 0 });
   const [rotation, setRotation] = useState({ y: 0 });
@@ -80,14 +100,13 @@ export default function LapBoard() {
         setRotation={setRotation}
         scale={scale}
         setScale={setScale}
+        fetchTelemetryData={fetchTelemetryData}
       />
 
       <PositionsTable />
 
-      <Canvas camera={{ position: [0, 200, 300], fov: 50 }}>
-
-      {currentWeather === "rainy" ? (
-          // <Sky sunPosition={[5, 1, 8]} inclination={0.6} azimuth={0.25} />
+      <Canvas shadows camera={{ position: [0, 200, 300], fov: 50 }}>
+        {currentWeather === "rainy" ? (
           <Sky
             sunPosition={[5, 1, 8]}
             inclination={0.6}
@@ -115,7 +134,7 @@ export default function LapBoard() {
         <directionalLight
           castShadow
           position={[20, 50, 20]}
-          intensity={3}
+          intensity={1}
           shadow-mapSize-width={512}
           shadow-mapSize-height={512}
           shadow-camera-far={500}
@@ -124,12 +143,12 @@ export default function LapBoard() {
           shadow-camera-top={50}
           shadow-camera-bottom={-50}
         />
-
+  
         <RaceTrack />
 
         {!loading &&
           Object.keys(telemetryData).map((driverCode) => {
-            if (driverList[driverCode] === true){
+            if (driverList[driverCode] === true) {
               return (
                 <MovingCar
                   key={driverCode}
@@ -143,7 +162,7 @@ export default function LapBoard() {
 
         <OrbitControls enabled={cameraMode === "free"} maxDistance={850} />
 
-        {currentWeather === "rainy" && <Rain />}
+        <Rain />
       </Canvas>
     </div>
   );

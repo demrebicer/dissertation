@@ -26,16 +26,16 @@
     animation: slideDown 0.5s ease-out forwards; // Animasyon tanımı
   }
 
-  &.red .flag-frame .flag-icon {
-    background-color: #ff5a5a; // Red flag background color
+  &.all-clear .flag-frame .flag-icon {
+    background-color: #1bb71b; // All clear (green) flag background color
   }
 
   &.yellow .flag-frame .flag-icon {
     background-color: #ffd700; // Yellow flag background color
   }
 
-  &.green .flag-frame .flag-icon {
-    background-color: #00ff00; // Green flag background color
+  &.red .flag-frame .flag-icon {
+    background-color: #ff5a5a; // Red flag background color
   }
 
   &.safety-car .flag-frame .flag-icon {

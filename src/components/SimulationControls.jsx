@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import { useStore } from "../utils/store";
-import axios from "axios";
-import FlagIndicator from "./FlagIndicator";
-import RacingLineControls from "./RacingLineControls";
 import { Tooltip } from "react-tooltip";
 
 import CloudIcon from "../assets/images/cloud_icon.png";
@@ -11,14 +8,25 @@ import RainIcon from "../assets/images/rain_icon.png";
 import SunIcon from "../assets/images/sun_icon.png";
 import TrackIcon from "../assets/images/track_icon.png";
 
+import FlagIndicator from "./FlagIndicator";
+
 import { FaVideo, FaCarSide, FaTv, FaExpand, FaExpandArrowsAlt, FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import "../assets/styles/simulationControls.scss";
 
-function SimulationControls({ translation, setTranslation, rotation, setRotation, scale, setScale }) {
+function SimulationControls({
+  translation,
+  setTranslation,
+  rotation,
+  setRotation,
+  scale,
+  setScale,
+  fetchTelemetryData,
+}) {
   const {
     selectedYear,
     setSelectedYear,
-    setSelectedLap,
+    selectedType,
+    setSelectedType,
     cameraMode,
     setCameraMode,
     toggleRacingLineVisibility,
@@ -26,8 +34,6 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     setIsDriverSelectDisabled,
     setIsLapSelectDisabled,
     currentLapTime,
-    selectedType,
-    setSelectedType,
     isYearSelectDisabled,
     setIsYearSelectDisabled,
     setCurrentLapTime,
@@ -36,6 +42,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     setCurrentWeather,
     isSoundMuted,
     setIsSoundMuted,
+    loading,
   } = useStore();
 
   const [flags, setFlags] = useState([]);
@@ -70,7 +77,6 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
   };
 
   const resetAfterDriver = () => {
-    setSelectedLap(null);
     setCurrentLapTime(0);
     setCurrentSpeed(0);
     setIsLapSelectDisabled(true);
@@ -83,42 +89,9 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     }
   }, [selectedType]);
 
-  useEffect(() => {
-    const determineCurrentFlag = (flags, currentTime) => {
-      const flag = flags.find((flag) => currentTime >= flag.start_time && currentTime <= flag.end_time);
-
-      if (flag) {
-        switch (flag.flag) {
-          case "1":
-            return "green";
-          case "2":
-            return "yellow";
-          case "4":
-            return "safety-car";
-          case "5":
-            return "red";
-          case "6":
-            return "virtual-safety-car";
-          case "7":
-            return "virtual-safety-car-ending";
-          default:
-            return null;
-        }
-      }
-      return null;
-    };
-
-    if (flags.length > 0) {
-      const currentFlag = determineCurrentFlag(flags, currentLapTime);
-      setCurrentFlag(currentFlag);
-    } else {
-      setCurrentFlag(null);
-    }
-  }, [flags, currentLapTime]);
-
   return (
     <div>
-      {showRacingLineControls && (
+      {/* {showRacingLineControls && (
         <RacingLineControls
           translation={translation}
           setTranslation={setTranslation}
@@ -127,7 +100,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           scale={scale}
           setScale={setScale}
         />
-      )}
+      )} */}
       <div className="race-configuration-container">
         <div className="race-configuration-title">Race Configuration</div>
 
@@ -139,6 +112,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
             placeholder="Select Type"
             onChange={setSelectedType}
             value={selectedType}
+            isDisabled={loading}
           />
           <Select
             className="select-box"
@@ -146,7 +120,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
             options={years}
             placeholder="Select Year"
             onChange={setSelectedYear}
-            isDisabled={isYearSelectDisabled}
+            isDisabled={isYearSelectDisabled || loading}
             value={selectedYear}
           />
         </div>
@@ -191,7 +165,6 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
             <FaExpandArrowsAlt />
           </button>
           <button
-            // className="icon-button"
             className={`icon-button ${isRacingLineVisible ? "selected" : ""}`}
             onClick={toggleRacingLineVisibility}
             data-tooltip-id="my-tooltip"
@@ -264,7 +237,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
         <Tooltip id="my-tooltip" place="bottom" />
       </div>
 
-      {currentFlag ? <FlagIndicator type={currentFlag} /> : null}
+      <FlagIndicator /> 
     </div>
   );
 }

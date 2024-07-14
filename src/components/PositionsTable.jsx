@@ -52,6 +52,7 @@ const PositionsTable = () => {
     toggleDriverVisibility,
     selectedDriver,
     setSelectedDriver,
+    speedMultiplierOverride,
   } = useStore((state) => state);
 
   useEffect(() => {

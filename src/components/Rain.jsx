@@ -1,12 +1,14 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { BufferGeometry, Float32BufferAttribute, LineSegments, LineBasicMaterial, AdditiveBlending } from 'three';
+import { useStore } from '../utils/store'; // Import your store hook
 
 export default function Rain() {
   const rainRef = useRef();
   const count = 3500;
   const positions = new Float32Array(count * 6); // Start and end points for each line segment
 
+  // Initialize positions for rain drops
   for (let i = 0; i < count; i++) {
     const x = (Math.random() - 0.5) * 850;
     const y = Math.random() * 500;
@@ -19,8 +21,48 @@ export default function Rain() {
     positions[i * 6 + 5] = z;
   }
 
+  const {
+    currentWeather,
+    setCurrentWeather,
+    weatherData,
+    time,
+  } = useStore();
+  const [initialLoadTime, setInitialLoadTime] = useState(null);
+  const [isRaining, setIsRaining] = useState(false);
+
+  useEffect(() => {
+    // Set the initial load time once time is not zero
+    if (time !== 0 && initialLoadTime === null) {
+      setInitialLoadTime(time);
+    }
+  }, [time]);
+
+  useEffect(() => {
+    const checkWeather = () => {
+      // Find the latest weather data point up to the current time
+      const currentData = weatherData.reduce((acc, data) => {
+        if (data.Time <= time) {
+          return data;
+        }
+        return acc;
+      }, null);
+
+      if (currentData) {
+        if (currentData.Rainfall) {
+          setIsRaining(true);
+          setCurrentWeather('rainy');
+        } else {
+          setIsRaining(false);
+          setCurrentWeather('sunny');
+        }
+      }
+    };
+
+    checkWeather();
+  }, [time, weatherData, setCurrentWeather]);
+
   useFrame(() => {
-    if (rainRef.current) {
+    if (rainRef.current && isRaining) {
       const positions = rainRef.current.geometry.attributes.position.array;
       for (let i = 0; i < count; i++) {
         positions[i * 6 + 1] -= 2;
@@ -34,12 +76,12 @@ export default function Rain() {
     }
   });
 
-  return (
+  return isRaining ? (
     <lineSegments ref={rainRef}>
       <bufferGeometry attach="geometry">
         <bufferAttribute attach="attributes-position" array={positions} itemSize={3} count={count * 2} />
       </bufferGeometry>
       <lineBasicMaterial attach="material" color="#214081" linewidth={2} blending={AdditiveBlending} transparent />
     </lineSegments>
-  );
+  ) : null;
 }

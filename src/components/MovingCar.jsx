@@ -4,6 +4,10 @@ import * as THREE from "three";
 import { Html, useGLTF } from "@react-three/drei";
 import { useStore } from "../utils/store";
 
+import AccelerationSound from "../assets/sounds/acceleration.mp3";
+import CruiseSound from "../assets/sounds/cruise.mp3";
+import DecelerationSound from "../assets/sounds/deceleration.mp3";
+
 const rotationAngleDegrees = 75;
 const rotationAngleRadians = rotationAngleDegrees * (Math.PI / 180);
 const rotationMatrix = new THREE.Matrix4().makeRotationY(rotationAngleRadians);
@@ -14,6 +18,12 @@ function MovingCar({ driverName, laps, color }) {
   const elapsedTimeRef = useRef(0);
   const distanceTraveledRef = useRef(0);
   const lapIndexRef = useRef(0);
+
+  // Sound effects
+  const accelerationSoundRef = useRef();
+  const cruiseSoundRef = useRef();
+  const decelerationSoundRef = useRef();
+
   const [currentLapData, setCurrentLapData] = useState(laps[lapIndexRef.current]);
   const [points, setPoints] = useState([]);
   const [spacedPoints, setSpacedPoints] = useState([]);
@@ -30,6 +40,8 @@ function MovingCar({ driverName, laps, color }) {
     driversVisibility,
     selectedDriver,
     cameraMode,
+    isSoundMuted,
+    speedMultiplierOverride,
   } = useStore((state) => state);
 
   useEffect(() => {
@@ -58,7 +70,9 @@ function MovingCar({ driverName, laps, color }) {
         return totalDistance;
       });
 
-      const averageSpeed = totalDistance / currentLapData.LapDuration;
+      const adjustedLapDuration = currentLapData.LapDuration / speedMultiplierOverride; // Adjust the lap duration
+  
+      const averageSpeed = totalDistance / adjustedLapDuration;
 
       const totalSpeed = currentLapData.Telemetry.Speed.reduce((acc, speed) => acc + speed, 0);
       const speedMultiplier = averageSpeed / (totalSpeed / currentLapData.Telemetry.Speed.length);
@@ -70,6 +84,44 @@ function MovingCar({ driverName, laps, color }) {
       setAdjustedSpeedData(newAdjustedSpeedData);
     }
   }, [currentLapData]);
+
+  useEffect(() => {
+    const listener = new THREE.AudioListener();
+    if (carRef.current) {
+      carRef.current.add(listener);
+    }
+
+    const accelerationSound = new THREE.Audio(listener);
+    const cruiseSound = new THREE.Audio(listener);
+    const decelerationSound = new THREE.Audio(listener);
+
+    const audioLoader = new THREE.AudioLoader();
+    audioLoader.load(AccelerationSound, (buffer) => {
+      accelerationSound.setBuffer(buffer);
+      accelerationSound.setLoop(true);
+      accelerationSound.setVolume(0.5);
+    });
+    audioLoader.load(CruiseSound, (buffer) => {
+      cruiseSound.setBuffer(buffer);
+      cruiseSound.setLoop(true);
+      cruiseSound.setVolume(0.5);
+    });
+    audioLoader.load(DecelerationSound, (buffer) => {
+      decelerationSound.setBuffer(buffer);
+      decelerationSound.setLoop(true);
+      decelerationSound.setVolume(0.5);
+    });
+
+    accelerationSoundRef.current = accelerationSound;
+    cruiseSoundRef.current = cruiseSound;
+    decelerationSoundRef.current = decelerationSound;
+
+    return () => {
+      accelerationSound.stop();
+      cruiseSound.stop();
+      decelerationSound.stop();
+    };
+  }, []);
 
   useFrame((state, delta) => {
     if (!currentLapData || !points.length) return;
@@ -163,6 +215,40 @@ function MovingCar({ driverName, laps, color }) {
         state.camera.position.copy(cameraPosition);
         state.camera.lookAt(carRef.current.position);
       }
+
+      // Handle sound playback based on RPM data and isSoundMuted flag
+      if (selectedDriver === driverName) { // Ensure sound only for selected driver
+        const currentRpm = currentLapData?.Telemetry?.RPM[speedIndex] || 0;
+        if (!isSoundMuted && currentRpm > 0) {
+          if (currentRpm > 9000) {
+            if (!accelerationSoundRef.current.isPlaying) {
+              accelerationSoundRef.current.play();
+              cruiseSoundRef.current.stop();
+              decelerationSoundRef.current.stop();
+            }
+          } else if (currentRpm > 4000) {
+            if (!cruiseSoundRef.current.isPlaying) {
+              cruiseSoundRef.current.play();
+              accelerationSoundRef.current.stop();
+              decelerationSoundRef.current.stop();
+            }
+          } else {
+            if (!decelerationSoundRef.current.isPlaying) {
+              decelerationSoundRef.current.play();
+              accelerationSoundRef.current.stop();
+              cruiseSoundRef.current.stop();
+            }
+          }
+        } else {
+          accelerationSoundRef.current.stop();
+          cruiseSoundRef.current.stop();
+          decelerationSoundRef.current.stop();
+        }
+      } else {
+        accelerationSoundRef.current.stop();
+        cruiseSoundRef.current.stop();
+        decelerationSoundRef.current.stop();
+      }
     }
   });
 
@@ -191,13 +277,25 @@ function MovingCar({ driverName, laps, color }) {
     }
   };
 
+  const adjustOpacity = (gltfScene, opacity) => {
+    gltfScene.traverse((child) => {
+      if (child.material) {
+        child.material = child.material.clone();
+        child.material.transparent = true;
+        child.material.opacity = opacity;
+      }
+    });
+  };
+
   useEffect(() => {
     if (gltf.scene) {
       const clonedScene = gltf.scene.clone();
       applyColorToBase(clonedScene, color);
       applyBrakeLightIntensity(clonedScene, 5);
+      const opacity = selectedDriver === driverName ? 1 : 0.2;
+      adjustOpacity(clonedScene, opacity);
     }
-  }, [gltf, color, brakeLightMaterial]);
+  }, [gltf, color, brakeLightMaterial, selectedDriver, driverName]);
 
   if (!currentLapData || !points.length) {
     return null;
@@ -208,6 +306,8 @@ function MovingCar({ driverName, laps, color }) {
   const clonedScene = gltf.scene.clone();
   applyColorToBase(clonedScene, color);
   applyBrakeLightIntensity(clonedScene, 5);
+  const opacity = selectedDriver === driverName ? 1 : 0.2;
+  adjustOpacity(clonedScene, opacity);
 
   return (
     <group ref={carRef} visible={isVisible} position={[points[0]?.x || 0, points[0]?.y || 0, points[0]?.z || 0]}>
