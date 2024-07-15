@@ -9,6 +9,7 @@ import SunIcon from "../assets/images/sun_icon.png";
 import TrackIcon from "../assets/images/track_icon.png";
 
 import FlagIndicator from "./FlagIndicator";
+import RacingLineControls from "./RacingLineControls";
 
 import { FaVideo, FaCarSide, FaTv, FaExpand, FaExpandArrowsAlt, FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import "../assets/styles/simulationControls.scss";
@@ -91,7 +92,7 @@ function SimulationControls({
 
   return (
     <div>
-      {/* {showRacingLineControls && (
+      {showRacingLineControls && (
         <RacingLineControls
           translation={translation}
           setTranslation={setTranslation}
@@ -100,7 +101,7 @@ function SimulationControls({
           scale={scale}
           setScale={setScale}
         />
-      )} */}
+      )}
       <div className="race-configuration-container">
         <div className="race-configuration-title">Race Configuration</div>
 

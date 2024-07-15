@@ -61,6 +61,14 @@ export default function Rain() {
     checkWeather();
   }, [time, weatherData, setCurrentWeather]);
 
+  useEffect(() => {
+    if (currentWeather === 'rainy') {
+      setIsRaining(true);
+    } else {
+      setIsRaining(false);
+    }
+  }, [currentWeather]);
+
   useFrame(() => {
     if (rainRef.current && isRaining) {
       const positions = rainRef.current.geometry.attributes.position.array;

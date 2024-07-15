@@ -12,7 +12,7 @@ const rotationAngleDegrees = 75;
 const rotationAngleRadians = rotationAngleDegrees * (Math.PI / 180);
 const rotationMatrix = new THREE.Matrix4().makeRotationY(rotationAngleRadians);
 
-function MovingCar({ driverName, laps, color }) {
+function MovingCar({ driverName, laps, color, translation, rotation, scale }) {
   const carRef = useRef();
   const cameraRef = useRef();
   const elapsedTimeRef = useRef(0);
@@ -52,11 +52,19 @@ function MovingCar({ driverName, laps, color }) {
     }
   }, [laps]);
 
+  const customRotationMatrix = useMemo(() => {
+    const matrix = new THREE.Matrix4();
+    matrix.makeRotationFromEuler(new THREE.Euler(0, THREE.MathUtils.degToRad(rotation.y), 0));
+    return matrix;
+  }, [rotation.y]);
+
   useEffect(() => {
     if (currentLapData && currentLapData.Telemetry) {
       const newPoints = currentLapData.Telemetry.GPS_Coordinates.map((p) => {
-        const vector = new THREE.Vector3(p[0] - 47.5, p[1] - 0.055, -p[2] + 19.5);
+        const vector = new THREE.Vector3(p[0] * scale - 47.5, p[1] * scale - 0.055, -p[2] * scale + 19.5);
         vector.applyMatrix4(rotationMatrix);
+        vector.applyMatrix4(customRotationMatrix); 
+        vector.add(new THREE.Vector3(translation.x, translation.y, translation.z));
         return vector;
       });
 
@@ -83,7 +91,7 @@ function MovingCar({ driverName, laps, color }) {
       setDistances(newDistances);
       setAdjustedSpeedData(newAdjustedSpeedData);
     }
-  }, [currentLapData]);
+  }, [currentLapData, translation, rotation, scale, speedMultiplierOverride, rotationMatrix, customRotationMatrix]);
 
   useEffect(() => {
     const listener = new THREE.AudioListener();

@@ -11,6 +11,7 @@ import MovingCar from "../components/MovingCar";
 import FullPageLoader from "../components/FullPageLoader";
 import SimulationControls from "../components/SimulationControls";
 import Rain from "../components/Rain";
+import RacingLine from "../components/RacingLine";
 
 export default function Simulation() {
   const [telemetryData, setTelemetryData] = useState({});
@@ -37,7 +38,9 @@ export default function Simulation() {
     loading,
     setLoading,
     setFlags,
-    setWeatherData
+    setWeatherData,
+    selectedDriver,
+    isRacingLineVisible
   } = useStore();
 
   const fetchTelemetryData = async (year, type) => {
@@ -143,7 +146,7 @@ export default function Simulation() {
           shadow-camera-top={50}
           shadow-camera-bottom={-50}
         />
-  
+
         <RaceTrack />
 
         {!loading &&
@@ -155,6 +158,26 @@ export default function Simulation() {
                   driverName={driverCode}
                   laps={telemetryData[driverCode]}
                   color={telemetryData[driverCode][0].TeamColor}
+                  translation={translation}
+                  rotation={rotation}
+                  scale={scale}
+                />
+              );
+            }
+          })}
+
+        {!loading &&
+          Object.keys(telemetryData).map((driverCode) => {
+            if (isRacingLineVisible && driverList[driverCode] === true && selectedDriver === driverCode) {
+              return (
+                <RacingLine
+                  key={driverCode}
+                  driverName={driverCode}
+                  laps={telemetryData[driverCode]}
+                  color={telemetryData[driverCode][0].TeamColor}
+                  translation={translation}
+                  rotation={rotation}
+                  scale={scale}
                 />
               );
             }
