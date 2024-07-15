@@ -15,9 +15,7 @@ import RacingLine from "../components/RacingLine";
 
 export default function Simulation() {
   const [telemetryData, setTelemetryData] = useState({});
-  const requestMade = useRef(false);
   const {
-    currentLap,
     setLapsData,
     setStreamData,
     setCompletedLapsData,
@@ -29,7 +27,6 @@ export default function Simulation() {
     setDataLoaded,
     startTimestamp,
     sessionEndTime,
-    setSkipNextLap,
     driverList,
     currentWeather,
     cameraMode,

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { BufferGeometry, Float32BufferAttribute, LineSegments, LineBasicMaterial, AdditiveBlending } from 'three';
+import { AdditiveBlending } from 'three';
 import { useStore } from '../utils/store'; // Import your store hook
 
 export default function Rain() {

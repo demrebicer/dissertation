@@ -1,5 +1,4 @@
 import React, { useEffect, useCallback } from "react";
-import axios from "axios";
 import accurateInterval from "accurate-interval";
 import "../assets/styles/positionsTable.scss";
 import { FaAngleDoubleRight, FaEye, FaEyeSlash } from "react-icons/fa";
@@ -21,38 +20,28 @@ const formatTime = (totalSeconds) => {
 const PositionsTable = () => {
   const {
     lapsData,
-    setLapsData,
     streamData,
-    setStreamData,
     completedLapsData,
-    setCompletedLapsData,
     driverStatusData,
-    setDriverStatusData,
     currentLap,
     setCurrentLap,
     maxLaps,
-    setMaxLaps,
     time,
     setTime,
     startTime,
-    setStartTime,
     manualStartTime,
     setManualStartTime,
     dataLoaded,
-    setDataLoaded,
     driverPositions,
     setDriverPositions,
-    requestMade,
     startTimestamp,
     sessionEndTime,
-    skipNextLap, 
     setSkipNextLap, 
     setDriverList,
     driversVisibility,
     toggleDriverVisibility,
     selectedDriver,
     setSelectedDriver,
-    speedMultiplierOverride,
   } = useStore((state) => state);
 
   useEffect(() => {
