@@ -79,12 +79,14 @@ export default function FlagIndicator() {
       case "7":
         return <FaCarCrash color="white" size={24} />;
       default:
-        return <LuFlag color="white" size={24} />;
+        return null;
     }
   };
 
   const renderText = () => {
     switch (currentFlag) {
+      case "1":
+        return "All Clear";
       case "2":
         return "Yellow Flag";
       case "4":
@@ -96,9 +98,15 @@ export default function FlagIndicator() {
       case "7":
         return "Virtual Safety Car Ending";
       default:
-        return currentFlag === "1" ? "All Clear" : `${currentFlag} Flag`;
+        return "";
     }
   };
+
+  // Check if currentFlag is valid
+  const validFlags = ["1", "2", "4", "5", "6", "7"];
+  if (!validFlags.includes(currentFlag)) {
+    return null;
+  }
 
   return (
     <div className={`flag-container ${getFlagClass()} ${visible ? "visible" : ""}`}>

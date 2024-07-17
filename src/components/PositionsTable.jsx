@@ -5,16 +5,16 @@ import { FaAngleDoubleRight, FaEye, FaEyeSlash } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
 import { useStore } from "../utils/store";
 
-const formatTime = (totalSeconds) => {
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = Math.floor(totalSeconds % 60);
+const formatTime = (timeInSeconds) => {
+  const hours = Math.floor(timeInSeconds / 3600);
+  const minutes = Math.floor((timeInSeconds % 3600) / 60);
+  const seconds = Math.floor(timeInSeconds % 60);
 
-  const formattedHours = String(hours).padStart(2, "0");
-  const formattedMinutes = String(minutes).padStart(2, "0");
-  const formattedSeconds = String(seconds).padStart(2, "0");
+  const paddedHours = String(hours).padStart(2, '0');
+  const paddedMinutes = String(minutes).padStart(2, '0');
+  const paddedSeconds = String(seconds).padStart(2, '0');
 
-  return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+  return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
 };
 
 const PositionsTable = () => {
@@ -50,14 +50,14 @@ const PositionsTable = () => {
       interval = accurateInterval(
         () => {
           const now = Date.now();
-          const elapsedTime = Math.floor((now - startTimestamp.current) / 1000);
+          const elapsedTime = (now - startTimestamp.current) / 1000;
           let newTime = (manualStartTime !== null ? manualStartTime : startTime) + elapsedTime;
 
           if (newTime > sessionEndTime.current) {
             newTime = sessionEndTime.current;
           }
 
-          setTime(newTime);
+          setTime(parseFloat(newTime.toFixed(3)));
 
           const nextLap = lapsData.find((lap) => parseFloat(lap.Time) > newTime);
           if (nextLap) {
@@ -73,7 +73,7 @@ const PositionsTable = () => {
           const updatedDriverPositions = getDriverPositions(newTime, currentLap);
           setDriverPositions(updatedDriverPositions);
         },
-        1000,
+        20, // Update interval set to 20 milliseconds
         { aligned: true, immediate: true },
       );
     }
@@ -251,6 +251,7 @@ const PositionsTable = () => {
           {currentLap} / {maxLaps}
         </div>
         <div className="lap-time">{formatTime(time)}</div>
+        {/* <div className="lap-time">{time.toFixed(3)}</div> */}
       </div>
       <div className="separator"></div>
       <div className="drivers">

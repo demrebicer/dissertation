@@ -15,6 +15,8 @@ import RacingLine from "../components/RacingLine";
 
 export default function Simulation() {
   const [telemetryData, setTelemetryData] = useState({});
+  const [carsData, setCarsData] = useState([]);
+
   const {
     setLapsData,
     setStreamData,
@@ -50,6 +52,7 @@ export default function Simulation() {
 
       // Set telemetry data
       setTelemetryData(telemetryResponse.data);
+      setCarsData(telemetryResponse.data.cars);
 
       // Set timing data
       const timingData = timingResponse.data.laps_data;
@@ -147,36 +150,9 @@ export default function Simulation() {
         <RaceTrack />
 
         {!loading &&
-          Object.keys(telemetryData).map((driverCode) => {
-            if (driverList[driverCode] === true) {
-              return (
-                <MovingCar
-                  key={driverCode}
-                  driverName={driverCode}
-                  laps={telemetryData[driverCode]}
-                  color={telemetryData[driverCode][0].TeamColor}
-                  translation={translation}
-                  rotation={rotation}
-                  scale={scale}
-                />
-              );
-            }
-          })}
-
-        {!loading &&
-          Object.keys(telemetryData).map((driverCode) => {
-            if (isRacingLineVisible && driverList[driverCode] === true && selectedDriver === driverCode) {
-              return (
-                <RacingLine
-                  key={driverCode}
-                  driverName={driverCode}
-                  laps={telemetryData[driverCode]}
-                  color={telemetryData[driverCode][0].TeamColor}
-                  translation={translation}
-                  rotation={rotation}
-                  scale={scale}
-                />
-              );
+          carsData.map((car, index) => {
+            if (driverList[car.id] === true) {
+              return <MovingCar key={car.id} driverName={car.id} path={car.path} color={car.teamColor} />;
             }
           })}
 

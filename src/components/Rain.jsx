@@ -29,6 +29,7 @@ export default function Rain() {
   } = useStore();
   const [initialLoadTime, setInitialLoadTime] = useState(null);
   const [isRaining, setIsRaining] = useState(false);
+  const previousWeatherDataRef = useRef(weatherData);
 
   useEffect(() => {
     // Set the initial load time once time is not zero
@@ -47,7 +48,7 @@ export default function Rain() {
         return acc;
       }, null);
 
-      if (currentData) {
+      if (currentData && currentData !== previousWeatherDataRef.current) {
         if (currentData.Rainfall) {
           setIsRaining(true);
           setCurrentWeather('rainy');
@@ -55,6 +56,7 @@ export default function Rain() {
           setIsRaining(false);
           setCurrentWeather('sunny');
         }
+        previousWeatherDataRef.current = currentData;
       }
     };
 

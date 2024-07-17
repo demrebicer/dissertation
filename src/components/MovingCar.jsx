@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo, useEffect } from "react";
+import React, { useRef, useMemo, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { Html, useGLTF } from "@react-three/drei";
@@ -12,86 +12,29 @@ const rotationAngleDegrees = 75;
 const rotationAngleRadians = rotationAngleDegrees * (Math.PI / 180);
 const rotationMatrix = new THREE.Matrix4().makeRotationY(rotationAngleRadians);
 
-function MovingCar({ driverName, laps, color, translation, rotation, scale }) {
+const adjustCoordinates = (coordinates) => {
+  return coordinates.map((p) => {
+    const vector = new THREE.Vector3(p[0] - 47.5, p[1] + 0.2, -p[2] + 19.5);
+    vector.applyMatrix4(rotationMatrix);
+    return [vector.x, vector.y, vector.z];
+  });
+};
+
+function MovingCar({ driverName, path, color }) {
   const carRef = useRef();
   const cameraRef = useRef();
-  const elapsedTimeRef = useRef(0);
-  const distanceTraveledRef = useRef(0);
-  const lapIndexRef = useRef(0);
 
   // Sound effects
   const accelerationSoundRef = useRef();
   const cruiseSoundRef = useRef();
   const decelerationSoundRef = useRef();
 
-  const [currentLapData, setCurrentLapData] = useState(laps[lapIndexRef.current]);
-  const [points, setPoints] = useState([]);
-  const [spacedPoints, setSpacedPoints] = useState([]);
-  const [distances, setDistances] = useState([]);
-  const [adjustedSpeedData, setAdjustedSpeedData] = useState([]);
-  const brakeData = useMemo(() => currentLapData?.Telemetry?.Brake || [], [currentLapData]);
+  const { time, skipNextLap, setSkipNextLap, driversVisibility, selectedDriver, cameraMode, isSoundMuted, speedMultiplierOverride } =
+    useStore((state) => state);
 
-  const gltf = useGLTF('/assets/f1_car.glb', true);
+  const adjustedPath = useMemo(() => adjustCoordinates(path.map((p) => p.coordinates)), [path]);
 
-  const {
-    time,
-    skipNextLap,
-    setSkipNextLap,
-    driversVisibility,
-    selectedDriver,
-    cameraMode,
-    isSoundMuted,
-    speedMultiplierOverride,
-  } = useStore((state) => state);
-
-  useEffect(() => {
-    if (laps[lapIndexRef.current]) {
-      setCurrentLapData(laps[lapIndexRef.current]);
-      elapsedTimeRef.current = 0;
-      distanceTraveledRef.current = 0;
-    }
-  }, [laps]);
-
-  const customRotationMatrix = useMemo(() => {
-    const matrix = new THREE.Matrix4();
-    matrix.makeRotationFromEuler(new THREE.Euler(0, THREE.MathUtils.degToRad(rotation.y), 0));
-    return matrix;
-  }, [rotation.y]);
-
-  useEffect(() => {
-    if (currentLapData && currentLapData.Telemetry) {
-      const newPoints = currentLapData.Telemetry.GPS_Coordinates.map((p) => {
-        const vector = new THREE.Vector3(p[0] * scale - 47.5, p[1] * scale - 0.055, -p[2] * scale + 19.5);
-        vector.applyMatrix4(rotationMatrix);
-        vector.applyMatrix4(customRotationMatrix); 
-        vector.add(new THREE.Vector3(translation.x, translation.y, translation.z));
-        return vector;
-      });
-
-      const curve = new THREE.CatmullRomCurve3(newPoints);
-      const newSpacedPoints = curve.getSpacedPoints(15000);
-
-      let totalDistance = 0;
-      const newDistances = newSpacedPoints.map((point, index) => {
-        if (index === 0) return 0;
-        totalDistance += point.distanceTo(newSpacedPoints[index - 1]);
-        return totalDistance;
-      });
-
-      const adjustedLapDuration = currentLapData.LapDuration / speedMultiplierOverride; // Adjust the lap duration
-  
-      const averageSpeed = totalDistance / adjustedLapDuration;
-
-      const totalSpeed = currentLapData.Telemetry.Speed.reduce((acc, speed) => acc + speed, 0);
-      const speedMultiplier = averageSpeed / (totalSpeed / currentLapData.Telemetry.Speed.length);
-      const newAdjustedSpeedData = currentLapData.Telemetry.Speed.map((speed) => speed * speedMultiplier);
-
-      setPoints(newPoints);
-      setSpacedPoints(newSpacedPoints);
-      setDistances(newDistances);
-      setAdjustedSpeedData(newAdjustedSpeedData);
-    }
-  }, [currentLapData, translation, rotation, scale, speedMultiplierOverride, rotationMatrix, customRotationMatrix]);
+  const gltf = useGLTF("/assets/f1_car.glb", true);
 
   useEffect(() => {
     const listener = new THREE.AudioListener();
@@ -132,101 +75,64 @@ function MovingCar({ driverName, laps, color, translation, rotation, scale }) {
   }, []);
 
   useFrame((state, delta) => {
-    if (!currentLapData || !points.length) return;
-
-    const currentSessionTime = time - currentLapData.LapStartTime;
-
-    if (currentSessionTime < 0) {
-      return;
+    const currentTimestamp = time;
+    let nextPoint = null;
+    let prevPoint = null;
+  
+    for (let i = 1; i < path.length; i++) {
+      if (path[i].timestamp > currentTimestamp) {
+        nextPoint = path[i];
+        prevPoint = path[i - 1];
+        break;
+      }
     }
-
-    if (skipNextLap) {
-      setSkipNextLap(false); // Reset the skip flag
-    } else {
-      elapsedTimeRef.current = currentSessionTime;
-
-      if (elapsedTimeRef.current >= currentLapData.LapDuration) {
-        lapIndexRef.current = (lapIndexRef.current + 1) % laps.length;
-
-        if (lapIndexRef.current < laps.length) {
-          setCurrentLapData(laps[lapIndexRef.current]);
-          elapsedTimeRef.current = 0;
-          distanceTraveledRef.current = 0;
-        }
-      }
-
-      const normalizedTime = elapsedTimeRef.current / currentLapData.LapDuration;
-      const speedIndex = Math.min(Math.floor(normalizedTime * adjustedSpeedData.length), adjustedSpeedData.length - 1);
-      const currentSpeed = adjustedSpeedData[speedIndex];
-
-      const distanceTraveledInFrame = currentSpeed * delta;
-      distanceTraveledRef.current += distanceTraveledInFrame;
-      const distanceTraveled = Math.min(distanceTraveledRef.current, distances[distances.length - 1]);
-
-      let pointIndex = distances.findIndex((distance) => distance >= distanceTraveled);
-      if (pointIndex === -1) pointIndex = distances.length - 1;
-
-      const pointOnCurve = spacedPoints[pointIndex];
-      const nextPointOnCurve = spacedPoints[(pointIndex + 1) % spacedPoints.length];
-
-      carRef.current.position.copy(pointOnCurve);
-
-      const forwardDirection = new THREE.Vector3().subVectors(nextPointOnCurve, pointOnCurve).normalize();
+  
+    if (nextPoint && prevPoint) {
+      const prevIndex = path.indexOf(prevPoint);
+      const nextIndex = path.indexOf(nextPoint);
+  
+      const progress = (currentTimestamp - prevPoint.timestamp) / (nextPoint.timestamp - prevPoint.timestamp);
+  
+      const x = adjustedPath[prevIndex][0] + (adjustedPath[nextIndex][0] - adjustedPath[prevIndex][0]) * progress;
+      const y = adjustedPath[prevIndex][1] + (adjustedPath[nextIndex][1] - adjustedPath[prevIndex][1]) * progress;
+      const z = adjustedPath[prevIndex][2] + (adjustedPath[nextIndex][2] - adjustedPath[prevIndex][2]) * progress;
+  
+      carRef.current.position.set(x, y, z);
+  
+      // Adjust car orientation
+      const forwardDirection = new THREE.Vector3(
+        adjustedPath[nextIndex][0] - adjustedPath[prevIndex][0],
+        adjustedPath[nextIndex][1] - adjustedPath[prevIndex][1],
+        adjustedPath[nextIndex][2] - adjustedPath[prevIndex][2],
+      ).normalize();
       const targetQuaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), forwardDirection);
-
       carRef.current.quaternion.slerp(targetQuaternion, 0.1);
-
-      const wheelRotationSpeed = currentSpeed / 1;
-      const wheelRotation = delta * wheelRotationSpeed;
-
-      const frontRightWheel = carRef.current.getObjectByName("Front_Right");
-      const frontLeftWheel = carRef.current.getObjectByName("Front_Left");
-      const backRightWheel = carRef.current.getObjectByName("Back_Right");
-      const backLeftWheel = carRef.current.getObjectByName("Back_Left");
-
-      if (frontRightWheel) {
-        frontRightWheel.rotateZ(wheelRotation);
-      }
-
-      if (frontLeftWheel) {
-        frontLeftWheel.rotateZ(wheelRotation);
-      }
-
-      if (backRightWheel) {
-        backRightWheel.rotateZ(wheelRotation);
-      }
-
-      if (backLeftWheel) {
-        backLeftWheel.rotateZ(wheelRotation);
-      }
-
-      const brakeIntensity = brakeData[speedIndex] ? 3 : 0;
-      brakeLightMaterial.emissiveIntensity = brakeIntensity;
-
+  
       if (cameraMode === "follow" && cameraRef.current && selectedDriver === driverName) {
-        const cameraOffset = 150;
-        const cameraHeightOffset = 2;
-        const cameraPointIndex = Math.max(0, (pointIndex - cameraOffset) % spacedPoints.length);
-        const cameraPoint = spacedPoints[cameraPointIndex];
+        const cameraOffsetDistance = 5;
+        const cameraHeight = 2; // Sabit yükseklik
+        const cameraPosition = new THREE.Vector3().copy(carRef.current.position)
+          .add(forwardDirection.multiplyScalar(-cameraOffsetDistance))
+          .setY(cameraHeight); // Sabit yükseklik kullanımı
   
-        cameraRef.current.position.lerp(cameraPoint, 0.1);
-        cameraRef.current.position.y = cameraHeightOffset;
+        cameraRef.current.position.lerp(cameraPosition, 0.05); // Daha yumuşak geçiş için lerp faktörü
   
-        state.camera.position.lerp(cameraRef.current.position, 0.1);
-        state.camera.lookAt(carRef.current.position.x, cameraHeightOffset, carRef.current.position.z);
+        state.camera.position.lerp(cameraRef.current.position, 0.05); // Daha yumuşak geçiş için lerp faktörü
+        state.camera.lookAt(carRef.current.position.x, cameraHeight, carRef.current.position.z); // Sabit yükseklikle bakış noktası
       }
-
+  
       if (cameraMode === "tv" && carRef.current && selectedDriver === driverName) {
         const cameraPosition = new THREE.Vector3().copy(carRef.current.position);
-        cameraPosition.y += 5; //5
-        cameraPosition.z -= 10; //10
+        cameraPosition.y = 5; // Sabit yükseklik
+        cameraPosition.z -= 10;
         state.camera.position.copy(cameraPosition);
         state.camera.lookAt(carRef.current.position);
       }
-
+  
       // Handle sound playback based on RPM data and isSoundMuted flag
-      if (selectedDriver === driverName) { // Ensure sound only for selected driver
-        const currentRpm = currentLapData?.Telemetry?.RPM[speedIndex] || 0;
+      if (selectedDriver === driverName) {
+        // Ensure sound only for selected driver
+        const currentRpm = (prevPoint.RPM + nextPoint.RPM) / 2;
         if (!isSoundMuted && currentRpm > 0) {
           if (currentRpm > 9000) {
             if (!accelerationSoundRef.current.isPlaying) {
@@ -257,8 +163,39 @@ function MovingCar({ driverName, laps, color, translation, rotation, scale }) {
         cruiseSoundRef.current.stop();
         decelerationSoundRef.current.stop();
       }
+  
+      const wheelRotationSpeed = 10;
+      const wheelRotation = delta * wheelRotationSpeed;
+  
+      const frontRightWheel = carRef.current.getObjectByName("Front_Right");
+      const frontLeftWheel = carRef.current.getObjectByName("Front_Left");
+      const backRightWheel = carRef.current.getObjectByName("Back_Right");
+      const backLeftWheel = carRef.current.getObjectByName("Back_Left");
+  
+      if (frontRightWheel) {
+        frontRightWheel.rotateZ(wheelRotation);
+      }
+  
+      if (frontLeftWheel) {
+        frontLeftWheel.rotateZ(wheelRotation);
+      }
+  
+      if (backRightWheel) {
+        backRightWheel.rotateZ(wheelRotation);
+      }
+  
+      if (backLeftWheel) {
+        backLeftWheel.rotateZ(wheelRotation);
+      }
+  
+      // Adjust brake light intensity based on brake status
+      const isBraking = prevPoint.Brake || nextPoint.Brake;
+      applyBrakeLightIntensity(carRef.current, isBraking ? 5 : 0);
     }
   });
+  
+
+  const isVisible = !driversVisibility.includes(driverName);
 
   const brakeLightMaterial = useMemo(() => {
     const material = new THREE.MeshStandardMaterial({
@@ -275,10 +212,10 @@ function MovingCar({ driverName, laps, color, translation, rotation, scale }) {
       brakeLight.material = brakeLightMaterial;
       brakeLight.material.emissiveIntensity = intensity;
     }
-  }
+  };
 
   const applyColorToBase = (gltfScene, color) => {
-    const baseMesh = gltfScene.getObjectByName('Base');
+    const baseMesh = gltfScene.getObjectByName("Base");
     if (baseMesh) {
       baseMesh.material = baseMesh.material.clone(); // Clone the material to ensure each car has a unique material
       baseMesh.material.color = new THREE.Color(color);
@@ -295,46 +232,34 @@ function MovingCar({ driverName, laps, color, translation, rotation, scale }) {
     });
   };
 
-  useEffect(() => {
+  const clonedScene = useMemo(() => {
     if (gltf.scene) {
-      const clonedScene = gltf.scene.clone();
-      applyColorToBase(clonedScene, color);
-      applyBrakeLightIntensity(clonedScene, 5);
+      const scene = gltf.scene.clone();
+      applyColorToBase(scene, color);
+      applyBrakeLightIntensity(scene, 0); // Initialize with brake light off
       const opacity = selectedDriver === driverName ? 1 : 0.2;
-      adjustOpacity(clonedScene, opacity);
+      adjustOpacity(scene, opacity);
+      return scene;
     }
-  }, [gltf, color, brakeLightMaterial, selectedDriver, driverName]);
-
-  if (!currentLapData || !points.length) {
-    return null;
-  }
-
-  const isVisible = !driversVisibility.includes(driverName);
-
-  const clonedScene = gltf.scene.clone();
-  applyColorToBase(clonedScene, color);
-  applyBrakeLightIntensity(clonedScene, 5);
-  const opacity = selectedDriver === driverName ? 1 : 0.2;
-  adjustOpacity(clonedScene, opacity);
+  }, [gltf.scene, color, selectedDriver]);
 
   return (
-    <group ref={carRef} visible={isVisible} position={[points[0]?.x || 0, points[0]?.y || 0, points[0]?.z || 0]}>
-      <primitive object={clonedScene} scale={0.65}/>
+    <group ref={carRef} visible={isVisible} position={[0, 0, 0]}>
+      {clonedScene && <primitive object={clonedScene} scale={0.65} />}
       <group ref={cameraRef} />
 
       {isVisible && (
-        <Html distanceFactor={10} position={[0, 1.5, 0]}>
+        <Html distanceFactor={8} position={[0, 1.5, 0]}>
           <div
             style={{
-              background: 'rgba(0, 0, 0, 0.5)',
-              padding: '5px 25px',
-              fontSize: '48px',
-              color: 'white',
-              borderRadius: '5px',
-              boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
-              transform: 'translate3d(-50%, -50%, 0)',
-              whiteSpace: 'nowrap',
-              zIndex: 0,
+              background: "rgba(0, 0, 0, 0.5)",
+              padding: "5px 25px",
+              fontSize: "48px",
+              color: "white",
+              borderRadius: "5px",
+              boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
+              transform: "translate3d(-50%, -50%, 0)",
+              whiteSpace: "nowrap",
             }}
           >
             {driverName}
@@ -345,6 +270,6 @@ function MovingCar({ driverName, laps, color, translation, rotation, scale }) {
   );
 }
 
-useGLTF.preload('/assets/f1_car.glb');
+useGLTF.preload("/assets/f1_car.glb");
 
 export default MovingCar;
