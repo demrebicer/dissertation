@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Sky, BakeShadows } from "@react-three/drei";
 import axios from "axios";

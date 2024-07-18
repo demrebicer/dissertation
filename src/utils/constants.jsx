@@ -11,5 +11,4 @@ export const simulationConfig = {
       scale: 1.06,
     },
   },
-  // Add other years and types as needed
 };
