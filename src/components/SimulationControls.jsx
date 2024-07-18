@@ -14,15 +14,7 @@ import RacingLineControls from "./RacingLineControls";
 import { FaVideo, FaCarSide, FaTv, FaExpand, FaExpandArrowsAlt, FaVolumeUp, FaVolumeMute } from "react-icons/fa";
 import "../assets/styles/simulationControls.scss";
 
-function SimulationControls({
-  translation,
-  setTranslation,
-  rotation,
-  setRotation,
-  scale,
-  setScale,
-  fetchTelemetryData,
-}) {
+function SimulationControls({ translation, setTranslation, rotation, setRotation, scale, setScale }) {
   const {
     selectedYear,
     setSelectedYear,
@@ -34,7 +26,6 @@ function SimulationControls({
     isRacingLineVisible,
     setIsDriverSelectDisabled,
     setIsLapSelectDisabled,
-    currentLapTime,
     isYearSelectDisabled,
     setIsYearSelectDisabled,
     setCurrentLapTime,
@@ -46,9 +37,6 @@ function SimulationControls({
     loading,
   } = useStore();
 
-  const [flags, setFlags] = useState([]);
-  const [currentFlag, setCurrentFlag] = useState(null);
-  const [speedMultiplier, setSpeedMultiplier] = useState(3);
   const [showRacingLineControls, setShowRacingLineControls] = useState(false);
 
   const years = [
@@ -202,9 +190,8 @@ function SimulationControls({
             data-tooltip-id="my-tooltip"
             data-tooltip-content="Toggle Mute Sound"
           >
-            {isSoundMuted ? <FaVolumeMute size={24}/> : <FaVolumeUp size={24}/>}
+            {isSoundMuted ? <FaVolumeMute size={24} /> : <FaVolumeUp size={24} />}
           </button>
-         
         </div>
 
         <div className="section-title">Weather</div>
@@ -238,7 +225,7 @@ function SimulationControls({
         <Tooltip id="my-tooltip" place="bottom" />
       </div>
 
-      <FlagIndicator /> 
+      <FlagIndicator />
     </div>
   );
 }

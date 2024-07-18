@@ -8,14 +8,9 @@ const useStore = create((set) => ({
   loading: false,
   setLoading: (value) => set({ loading: value }),
 
-  requestMade: { current: false },
-
   startTimestamp: { current: 0 },
 
   sessionEndTime: { current: 0 },
-
-  manualSkip: false,
-  setManualSkip: (skip) => set({ manualSkip: skip }),
 
   skipNextLap: false,
   setSkipNextLap: (value) => set({ skipNextLap: value }),
@@ -38,9 +33,6 @@ const useStore = create((set) => ({
 
   currentLapTime: 0,
   setCurrentLapTime: (time) => set({ currentLapTime: time }),
-
-  lapDuration: null,
-  setLapDuration: (data) => set({ lapDuration: data }),
 
   // Driver and Lap Data
   lapsData: [],
@@ -72,24 +64,12 @@ const useStore = create((set) => ({
     });
   },
 
-  telemetryData: null,
-  setTelemetryData: (data) => set({ telemetryData: data }),
-
   selectedDriver: "HAM",
   setSelectedDriver: (driver) => set({ selectedDriver: driver }),
-
-  drivers: [],
-  setDrivers: (drivers) => set({ drivers }),
-
-  laps: [],
-  setLaps: (laps) => set({ laps }),
 
   // Selection State
   selectedYear: null,
   setSelectedYear: (year) => set({ selectedYear: year }),
-
-  selectedLap: null,
-  setSelectedLap: (lap) => set({ selectedLap: lap }),
 
   selectedType: null,
   setSelectedType: (type) => set({ selectedType: type }),

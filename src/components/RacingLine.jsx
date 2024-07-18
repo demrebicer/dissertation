@@ -4,28 +4,16 @@ import * as THREE from "three";
 import { useStore } from "../utils/store";
 
 function RacingLine({ driverName, path, color, translation, rotation, scale }) {
-  const lapIndexRef = useRef(0);
   const lineRef = useRef();
-  const elapsedTimeRef = useRef(0);
-  const distanceTraveledRef = useRef(0);
 
   const { lapsData, startTime, currentLap } = useStore();
 
-  const filteredLapsData = lapsData.filter(
-    (lap) => lap.DriverName === driverName && lap.NumberOfLaps === currentLap
-  );
+  const filteredLapsData = lapsData.filter((lap) => lap.DriverName === driverName && lap.NumberOfLaps === currentLap);
   const lapStartTime =
-    currentLap === 1
-      ? startTime
-      : lapsData.filter(
-          (lap) =>
-            lap.DriverName === driverName && lap.NumberOfLaps === currentLap - 1
-        )[0].Time;
+    currentLap === 1 ? startTime : lapsData.filter((lap) => lap.DriverName === driverName && lap.NumberOfLaps === currentLap - 1)[0].Time;
   const lapEndTime = filteredLapsData[0].Time;
 
-  const filteredPath = path.filter(
-    (point) => point.timestamp >= lapStartTime && point.timestamp <= lapEndTime
-  );
+  const filteredPath = path.filter((point) => point.timestamp >= lapStartTime && point.timestamp <= lapEndTime);
 
   const rotationAngleDegrees = 75;
   const rotationAngleRadians = rotationAngleDegrees * (Math.PI / 180);
@@ -49,9 +37,7 @@ function RacingLine({ driverName, path, color, translation, rotation, scale }) {
 
   const points = adjustCoordinates(filteredPath.map((p) => p.coordinates));
 
-  return (
-    <Line ref={lineRef} points={points} color={color} lineWidth={3} />
-  );
+  return <Line ref={lineRef} points={points} color={color} lineWidth={3} />;
 }
 
 export default RacingLine;

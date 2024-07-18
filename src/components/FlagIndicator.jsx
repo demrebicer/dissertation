@@ -21,9 +21,7 @@ export default function FlagIndicator() {
   useEffect(() => {
     if (flags && flags.length > 0 && initialLoadTime !== null) {
       // Find the current flag based on the global time and ignore flags older than initialLoadTime
-      const currentFlagData = flags
-        .filter(flag => flag.Time <= time && flag.Time >= initialLoadTime)
-        .sort((a, b) => b.Time - a.Time)[0];
+      const currentFlagData = flags.filter((flag) => flag.Time <= time && flag.Time >= initialLoadTime).sort((a, b) => b.Time - a.Time)[0];
 
       if (currentFlagData) {
         setCurrentFlag(currentFlagData.Status);
@@ -34,7 +32,8 @@ export default function FlagIndicator() {
   }, [time, flags, initialLoadTime]);
 
   useEffect(() => {
-    if (currentFlag === "1") { // All Clear
+    if (currentFlag === "1") {
+      // All Clear
       setVisible(true);
       const timer = setTimeout(() => {
         setVisible(false);

@@ -10,9 +10,9 @@ const formatTime = (timeInSeconds) => {
   const minutes = Math.floor((timeInSeconds % 3600) / 60);
   const seconds = Math.floor(timeInSeconds % 60);
 
-  const paddedHours = String(hours).padStart(2, '0');
-  const paddedMinutes = String(minutes).padStart(2, '0');
-  const paddedSeconds = String(seconds).padStart(2, '0');
+  const paddedHours = String(hours).padStart(2, "0");
+  const paddedMinutes = String(minutes).padStart(2, "0");
+  const paddedSeconds = String(seconds).padStart(2, "0");
 
   return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
 };
@@ -36,7 +36,7 @@ const PositionsTable = () => {
     setDriverPositions,
     startTimestamp,
     sessionEndTime,
-    setSkipNextLap, 
+    setSkipNextLap,
     setDriverList,
     driversVisibility,
     toggleDriverVisibility,
@@ -202,15 +202,15 @@ const PositionsTable = () => {
           }
         } else {
           const lastLapEndTime = lapsData
-          .filter((lap) => lap.Driver === driver)
-          .reduce((latest, lap) => {
-            const lapTime = parseFloat(lap.Time);
-            if (!latest || lapTime > parseFloat(latest.Time)) {
-              return lap;
-            }
-            return latest;
-          }, null);
-          
+            .filter((lap) => lap.Driver === driver)
+            .reduce((latest, lap) => {
+              const lapTime = parseFloat(lap.Time);
+              if (!latest || lapTime > parseFloat(latest.Time)) {
+                return lap;
+              }
+              return latest;
+            }, null);
+
           if (lastLapEndTime && parseFloat(lastLapEndTime.Time) <= currentTime) {
             return { ...currentTimeData, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
           }
@@ -257,7 +257,7 @@ const PositionsTable = () => {
       <div className="drivers">
         {driverPositions.map((driver, index) => {
           const isDnf = driverStatusData[driver.Driver] === "DNF" && completedLapsData[driver.Driver] < currentLap;
-          
+
           return (
             <div
               className="driver"

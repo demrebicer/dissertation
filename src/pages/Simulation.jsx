@@ -14,7 +14,6 @@ import Rain from "../components/Rain";
 import RacingLine from "../components/RacingLine";
 
 export default function Simulation() {
-  const [telemetryData, setTelemetryData] = useState({});
   const [carsData, setCarsData] = useState([]);
 
   const {
@@ -51,7 +50,6 @@ export default function Simulation() {
       ]);
 
       // Set telemetry data
-      setTelemetryData(telemetryResponse.data);
       setCarsData(telemetryResponse.data.cars);
 
       // Set timing data
@@ -133,20 +131,6 @@ export default function Simulation() {
           <Sky sunPosition={[20, 50, 20]} />
         )}
 
-        {/* <ambientLight intensity={currentWeather === "sunny" ? 3 : 1.5} /> */}
-        {/* <directionalLight
-          castShadow
-          position={[20, 50, 20]}
-          intensity={1}
-          shadow-mapSize-width={512}
-          shadow-mapSize-height={512}
-          shadow-camera-far={500}
-          shadow-camera-left={-50}
-          shadow-camera-right={50}
-          shadow-camera-top={50}
-          shadow-camera-bottom={-50}
-        /> */}
-
         <ambientLight intensity={currentWeather === "sunny" ? 2 : 1} />
         <directionalLight
           castShadow
@@ -168,14 +152,34 @@ export default function Simulation() {
         {!loading &&
           carsData.map((car, index) => {
             if (driverList[car.id] === true) {
-              return <MovingCar key={car.id} driverName={car.id} path={car.path} color={car.teamColor} translation={translation} rotation={rotation} scale={scale}/>;
+              return (
+                <MovingCar
+                  key={car.id}
+                  driverName={car.id}
+                  path={car.path}
+                  color={car.teamColor}
+                  translation={translation}
+                  rotation={rotation}
+                  scale={scale}
+                />
+              );
             }
           })}
 
         {!loading &&
           carsData.map((car, index) => {
             if (isRacingLineVisible && driverList[car.id] === true && selectedDriver === car.id) {
-              return <RacingLine key={car.id} driverName={car.id} path={car.path} color={car.teamColor} translation={translation} rotation={rotation} scale={scale}/>;
+              return (
+                <RacingLine
+                  key={car.id}
+                  driverName={car.id}
+                  path={car.path}
+                  color={car.teamColor}
+                  translation={translation}
+                  rotation={rotation}
+                  scale={scale}
+                />
+              );
             }
           })}
 

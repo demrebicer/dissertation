@@ -1,7 +1,7 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { AdditiveBlending } from 'three';
-import { useStore } from '../utils/store'; // Import your store hook
+import React, { useRef, useEffect, useState } from "react";
+import { useFrame } from "@react-three/fiber";
+import { AdditiveBlending } from "three";
+import { useStore } from "../utils/store"; // Import your store hook
 
 export default function Rain() {
   const rainRef = useRef();
@@ -21,12 +21,7 @@ export default function Rain() {
     positions[i * 6 + 5] = z;
   }
 
-  const {
-    currentWeather,
-    setCurrentWeather,
-    weatherData,
-    time,
-  } = useStore();
+  const { currentWeather, setCurrentWeather, weatherData, time } = useStore();
   const [initialLoadTime, setInitialLoadTime] = useState(null);
   const [isRaining, setIsRaining] = useState(false);
   const previousWeatherDataRef = useRef(weatherData);
@@ -51,10 +46,10 @@ export default function Rain() {
       if (currentData && currentData !== previousWeatherDataRef.current) {
         if (currentData.Rainfall) {
           setIsRaining(true);
-          setCurrentWeather('rainy');
+          setCurrentWeather("rainy");
         } else {
           setIsRaining(false);
-          setCurrentWeather('sunny');
+          setCurrentWeather("sunny");
         }
         previousWeatherDataRef.current = currentData;
       }
@@ -64,7 +59,7 @@ export default function Rain() {
   }, [time, weatherData, setCurrentWeather]);
 
   useEffect(() => {
-    if (currentWeather === 'rainy') {
+    if (currentWeather === "rainy") {
       setIsRaining(true);
     } else {
       setIsRaining(false);

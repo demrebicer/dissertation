@@ -110,7 +110,7 @@ function MovingCar({ driverName, path, color, translation, rotation, scale }) {
       const forwardDirection = new THREE.Vector3(
         adjustedPath[nextIndex][0] - adjustedPath[prevIndex][0],
         adjustedPath[nextIndex][1] - adjustedPath[prevIndex][1],
-        adjustedPath[nextIndex][2] - adjustedPath[prevIndex][2]
+        adjustedPath[nextIndex][2] - adjustedPath[prevIndex][2],
       ).normalize();
       const targetQuaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), forwardDirection);
       carRef.current.quaternion.slerp(targetQuaternion, 0.1);
@@ -118,7 +118,8 @@ function MovingCar({ driverName, path, color, translation, rotation, scale }) {
       if (cameraMode === "follow" && cameraRef.current && selectedDriver === driverName) {
         const cameraOffsetDistance = 5;
         const cameraHeight = 2; // Sabit yükseklik
-        const cameraPosition = new THREE.Vector3().copy(carRef.current.position)
+        const cameraPosition = new THREE.Vector3()
+          .copy(carRef.current.position)
           .add(forwardDirection.multiplyScalar(-cameraOffsetDistance))
           .setY(cameraHeight); // Sabit yükseklik kullanımı
 
