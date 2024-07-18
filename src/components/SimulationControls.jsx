@@ -24,12 +24,8 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
     setCameraMode,
     toggleRacingLineVisibility,
     isRacingLineVisible,
-    setIsDriverSelectDisabled,
-    setIsLapSelectDisabled,
     isYearSelectDisabled,
     setIsYearSelectDisabled,
-    setCurrentLapTime,
-    setCurrentSpeed,
     currentWeather,
     setCurrentWeather,
     isSoundMuted,
@@ -56,19 +52,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
 
   const resetAfterType = () => {
     setSelectedYear(null);
-    resetAfterYear();
     setIsYearSelectDisabled(true);
-  };
-
-  const resetAfterYear = () => {
-    resetAfterDriver();
-    setIsDriverSelectDisabled(true);
-  };
-
-  const resetAfterDriver = () => {
-    setCurrentLapTime(0);
-    setCurrentSpeed(0);
-    setIsLapSelectDisabled(true);
   };
 
   useEffect(() => {
@@ -164,7 +148,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           <button
             className="icon-button"
             onClick={() => {
-              //FullScreen Toggle
+              // FullScreen Toggle
               const elem = document.documentElement;
               if (!document.fullscreenElement) {
                 elem.requestFullscreen().then(() => {

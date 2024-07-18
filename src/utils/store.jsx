@@ -74,12 +74,6 @@ const useStore = create((set) => ({
   selectedType: null,
   setSelectedType: (type) => set({ selectedType: type }),
 
-  isDriverSelectDisabled: true,
-  setIsDriverSelectDisabled: (isDisabled) => set({ isDriverSelectDisabled: isDisabled }),
-
-  isLapSelectDisabled: true,
-  setIsLapSelectDisabled: (isDisabled) => set({ isLapSelectDisabled: isDisabled }),
-
   isYearSelectDisabled: true,
   setIsYearSelectDisabled: (isDisabled) => set({ isYearSelectDisabled: isDisabled }),
 
