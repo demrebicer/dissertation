@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Sky } from "@react-three/drei";
+import { OrbitControls, Sky, BakeShadows } from "@react-three/drei";
 import axios from "axios";
 import { useStore } from "../utils/store";
 import "../assets/styles/simulation.scss";
@@ -39,7 +39,7 @@ export default function Simulation() {
     setFlags,
     setWeatherData,
     selectedDriver,
-    isRacingLineVisible
+    isRacingLineVisible,
   } = useStore();
 
   const fetchTelemetryData = async (year, type) => {
@@ -133,8 +133,8 @@ export default function Simulation() {
           <Sky sunPosition={[20, 50, 20]} />
         )}
 
-        <ambientLight intensity={currentWeather === "sunny" ? 3 : 1.5} />
-        <directionalLight
+        {/* <ambientLight intensity={currentWeather === "sunny" ? 3 : 1.5} /> */}
+        {/* <directionalLight
           castShadow
           position={[20, 50, 20]}
           intensity={1}
@@ -145,6 +145,22 @@ export default function Simulation() {
           shadow-camera-right={50}
           shadow-camera-top={50}
           shadow-camera-bottom={-50}
+        /> */}
+
+        <ambientLight intensity={currentWeather === "sunny" ? 2 : 1} />
+        <directionalLight
+          castShadow
+          position={[10, 80, 100]}
+          intensity={3}
+          shadow-mapSize-width={10240}
+          shadow-mapSize-height={10240}
+          shadow-camera-far={500}
+          shadow-camera-left={-150}
+          shadow-camera-right={150}
+          shadow-camera-top={75}
+          shadow-camera-bottom={-100}
+          shadow-bias={-0.0001}
+          shadow-radius={2}
         />
 
         <RaceTrack />
@@ -152,13 +168,22 @@ export default function Simulation() {
         {!loading &&
           carsData.map((car, index) => {
             if (driverList[car.id] === true) {
-              return <MovingCar key={car.id} driverName={car.id} path={car.path} color={car.teamColor} />;
+              return <MovingCar key={car.id} driverName={car.id} path={car.path} color={car.teamColor} translation={translation} rotation={rotation} scale={scale}/>;
+            }
+          })}
+
+        {!loading &&
+          carsData.map((car, index) => {
+            if (isRacingLineVisible && driverList[car.id] === true && selectedDriver === car.id) {
+              return <RacingLine key={car.id} driverName={car.id} path={car.path} color={car.teamColor} translation={translation} rotation={rotation} scale={scale}/>;
             }
           })}
 
         <OrbitControls enabled={cameraMode === "free"} maxDistance={850} />
 
         <Rain />
+
+        <BakeShadows />
       </Canvas>
     </div>
   );

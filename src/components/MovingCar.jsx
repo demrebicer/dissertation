@@ -8,19 +8,7 @@ import AccelerationSound from "../assets/sounds/acceleration.mp3";
 import CruiseSound from "../assets/sounds/cruise.mp3";
 import DecelerationSound from "../assets/sounds/deceleration.mp3";
 
-const rotationAngleDegrees = 75;
-const rotationAngleRadians = rotationAngleDegrees * (Math.PI / 180);
-const rotationMatrix = new THREE.Matrix4().makeRotationY(rotationAngleRadians);
-
-const adjustCoordinates = (coordinates) => {
-  return coordinates.map((p) => {
-    const vector = new THREE.Vector3(p[0] - 47.5, p[1] + 0.2, -p[2] + 19.5);
-    vector.applyMatrix4(rotationMatrix);
-    return [vector.x, vector.y, vector.z];
-  });
-};
-
-function MovingCar({ driverName, path, color }) {
+function MovingCar({ driverName, path, color, translation, rotation, scale }) {
   const carRef = useRef();
   const cameraRef = useRef();
 
@@ -29,10 +17,29 @@ function MovingCar({ driverName, path, color }) {
   const cruiseSoundRef = useRef();
   const decelerationSoundRef = useRef();
 
-  const { time, skipNextLap, setSkipNextLap, driversVisibility, selectedDriver, cameraMode, isSoundMuted, speedMultiplierOverride } =
-    useStore((state) => state);
+  const { time, driversVisibility, selectedDriver, cameraMode, isSoundMuted } = useStore((state) => state);
 
-  const adjustedPath = useMemo(() => adjustCoordinates(path.map((p) => p.coordinates)), [path]);
+  const rotationAngleDegrees = 75;
+  const rotationAngleRadians = rotationAngleDegrees * (Math.PI / 180);
+  const rotationMatrix = new THREE.Matrix4().makeRotationY(rotationAngleRadians);
+
+  const customRotationMatrix = useMemo(() => {
+    const matrix = new THREE.Matrix4();
+    matrix.makeRotationFromEuler(new THREE.Euler(0, THREE.MathUtils.degToRad(rotation.y), 0));
+    return matrix;
+  }, [rotation.y]);
+
+  const adjustCoordinates = (coordinates) => {
+    return coordinates.map((p) => {
+      const vector = new THREE.Vector3(p[0] * scale - 47.5, p[1] * scale + 0.2, -p[2] * scale + 19.5);
+      vector.applyMatrix4(rotationMatrix);
+      vector.applyMatrix4(customRotationMatrix);
+      vector.add(new THREE.Vector3(translation.x, translation.y, translation.z));
+      return [vector.x, vector.y, vector.z];
+    });
+  };
+
+  const adjustedPath = useMemo(() => adjustCoordinates(path.map((p) => p.coordinates)), [path, scale, rotation, translation]);
 
   const gltf = useGLTF("/assets/f1_car.glb", true);
 
@@ -78,7 +85,7 @@ function MovingCar({ driverName, path, color }) {
     const currentTimestamp = time;
     let nextPoint = null;
     let prevPoint = null;
-  
+
     for (let i = 1; i < path.length; i++) {
       if (path[i].timestamp > currentTimestamp) {
         nextPoint = path[i];
@@ -86,41 +93,41 @@ function MovingCar({ driverName, path, color }) {
         break;
       }
     }
-  
+
     if (nextPoint && prevPoint) {
       const prevIndex = path.indexOf(prevPoint);
       const nextIndex = path.indexOf(nextPoint);
-  
+
       const progress = (currentTimestamp - prevPoint.timestamp) / (nextPoint.timestamp - prevPoint.timestamp);
-  
+
       const x = adjustedPath[prevIndex][0] + (adjustedPath[nextIndex][0] - adjustedPath[prevIndex][0]) * progress;
       const y = adjustedPath[prevIndex][1] + (adjustedPath[nextIndex][1] - adjustedPath[prevIndex][1]) * progress;
       const z = adjustedPath[prevIndex][2] + (adjustedPath[nextIndex][2] - adjustedPath[prevIndex][2]) * progress;
-  
+
       carRef.current.position.set(x, y, z);
-  
+
       // Adjust car orientation
       const forwardDirection = new THREE.Vector3(
         adjustedPath[nextIndex][0] - adjustedPath[prevIndex][0],
         adjustedPath[nextIndex][1] - adjustedPath[prevIndex][1],
-        adjustedPath[nextIndex][2] - adjustedPath[prevIndex][2],
+        adjustedPath[nextIndex][2] - adjustedPath[prevIndex][2]
       ).normalize();
       const targetQuaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), forwardDirection);
       carRef.current.quaternion.slerp(targetQuaternion, 0.1);
-  
+
       if (cameraMode === "follow" && cameraRef.current && selectedDriver === driverName) {
         const cameraOffsetDistance = 5;
         const cameraHeight = 2; // Sabit yükseklik
         const cameraPosition = new THREE.Vector3().copy(carRef.current.position)
           .add(forwardDirection.multiplyScalar(-cameraOffsetDistance))
           .setY(cameraHeight); // Sabit yükseklik kullanımı
-  
+
         cameraRef.current.position.lerp(cameraPosition, 0.05); // Daha yumuşak geçiş için lerp faktörü
-  
+
         state.camera.position.lerp(cameraRef.current.position, 0.05); // Daha yumuşak geçiş için lerp faktörü
         state.camera.lookAt(carRef.current.position.x, cameraHeight, carRef.current.position.z); // Sabit yükseklikle bakış noktası
       }
-  
+
       if (cameraMode === "tv" && carRef.current && selectedDriver === driverName) {
         const cameraPosition = new THREE.Vector3().copy(carRef.current.position);
         cameraPosition.y = 5; // Sabit yükseklik
@@ -128,7 +135,7 @@ function MovingCar({ driverName, path, color }) {
         state.camera.position.copy(cameraPosition);
         state.camera.lookAt(carRef.current.position);
       }
-  
+
       // Handle sound playback based on RPM data and isSoundMuted flag
       if (selectedDriver === driverName) {
         // Ensure sound only for selected driver
@@ -163,37 +170,36 @@ function MovingCar({ driverName, path, color }) {
         cruiseSoundRef.current.stop();
         decelerationSoundRef.current.stop();
       }
-  
+
       const wheelRotationSpeed = 10;
       const wheelRotation = delta * wheelRotationSpeed;
-  
+
       const frontRightWheel = carRef.current.getObjectByName("Front_Right");
       const frontLeftWheel = carRef.current.getObjectByName("Front_Left");
       const backRightWheel = carRef.current.getObjectByName("Back_Right");
       const backLeftWheel = carRef.current.getObjectByName("Back_Left");
-  
+
       if (frontRightWheel) {
         frontRightWheel.rotateZ(wheelRotation);
       }
-  
+
       if (frontLeftWheel) {
         frontLeftWheel.rotateZ(wheelRotation);
       }
-  
+
       if (backRightWheel) {
         backRightWheel.rotateZ(wheelRotation);
       }
-  
+
       if (backLeftWheel) {
         backLeftWheel.rotateZ(wheelRotation);
       }
-  
+
       // Adjust brake light intensity based on brake status
       const isBraking = prevPoint.Brake || nextPoint.Brake;
       applyBrakeLightIntensity(carRef.current, isBraking ? 5 : 0);
     }
   });
-  
 
   const isVisible = !driversVisibility.includes(driverName);
 
@@ -249,12 +255,12 @@ function MovingCar({ driverName, path, color }) {
       <group ref={cameraRef} />
 
       {isVisible && (
-        <Html distanceFactor={8} position={[0, 1.5, 0]}>
+        <Html distanceFactor={10} position={[0, 1.5, 0]}>
           <div
             style={{
               background: "rgba(0, 0, 0, 0.5)",
-              padding: "5px 25px",
-              fontSize: "48px",
+              padding: "2px 16px",
+              fontSize: "38px",
               color: "white",
               borderRadius: "5px",
               boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",

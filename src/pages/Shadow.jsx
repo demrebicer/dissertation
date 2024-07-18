@@ -1,7 +1,7 @@
 // App.js
 import { useRef } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, useHelper, useGLTF } from "@react-three/drei";
+import { OrbitControls, useHelper, useGLTF, BakeShadows } from "@react-three/drei";
 import * as THREE from "three";
 
 function RaceTrack() {
@@ -46,14 +46,14 @@ function Lights() {
 
   return (
     <>
-      <ambientLight intensity={1.1} />
+      <ambientLight intensity={2} />
       <directionalLight
         ref={directionalLightRef}
         castShadow
         position={[10, 80, 100]}
         intensity={3}
-        shadow-mapSize-width={8096}
-        shadow-mapSize-height={8096}
+        shadow-mapSize-width={10240}
+        shadow-mapSize-height={10240}
         shadow-camera-far={500}
         shadow-camera-left={-150}
         shadow-camera-right={150}
@@ -74,6 +74,9 @@ function Shadow() {
       {/* <Box /> */}
       {/* <Ground /> */}
       <RaceTrack />
+
+      <BakeShadows />
+
     </Canvas>
   );
 }
