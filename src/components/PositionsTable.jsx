@@ -200,20 +200,22 @@ const PositionsTable = () => {
           if (driverStatus !== "DNF") {
             return { ...currentTimeData, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
           }
-        } else {
-          const lastLapEndTime = lapsData
-            .filter((lap) => lap.Driver === driver)
-            .reduce((latest, lap) => {
-              const lapTime = parseFloat(lap.Time);
-              if (!latest || lapTime > parseFloat(latest.Time)) {
-                return lap;
+        }  else if (driverStatus === "Finished") {
+          const lastStreamData = streamData
+            .filter((entry) => entry.Driver === driver)
+            .reduce((latest, entry) => {
+              const entryTime = parseFloat(entry.Time);
+              if (!latest || entryTime > parseFloat(latest.Time)) {
+                return entry;
               }
               return latest;
             }, null);
-
-          if (lastLapEndTime && parseFloat(lastLapEndTime.Time) <= currentTime) {
+      
+          if (lastStreamData && parseFloat(lastStreamData.Time) <= currentTime) {
             return { ...currentTimeData, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
           }
+        } else if (driverStatus === "+1 Lap" && currentLap > completedLapsData[driver]) {
+          return { ...currentTimeData, GapToLeader: "+1 Lap", IntervalToPositionAhead: "+1 Lap" };
         }
       }
 
@@ -251,7 +253,7 @@ const PositionsTable = () => {
           {currentLap} / {maxLaps}
         </div>
         <div className="lap-time">{formatTime(time)}</div>
-        {/* <div className="lap-time">{time.toFixed(3)}</div> */}
+        <div className="lap-time">{time.toFixed(3)}</div>
       </div>
       <div className="separator"></div>
       <div className="drivers">
