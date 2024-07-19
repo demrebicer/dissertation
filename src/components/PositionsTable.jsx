@@ -253,7 +253,7 @@ const PositionsTable = () => {
           {currentLap} / {maxLaps}
         </div>
         <div className="lap-time">{formatTime(time)}</div>
-        <div className="lap-time">{time.toFixed(3)}</div>
+        {/* <div className="lap-time">{time.toFixed(3)}</div> */}
       </div>
       <div className="separator"></div>
       <div className="drivers">
