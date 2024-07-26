@@ -71,7 +71,7 @@ const useStore = create((set) => ({
   selectedYear: null,
   setSelectedYear: (year) => set({ selectedYear: year }),
 
-  selectedType: null,
+  selectedType: "race",
   setSelectedType: (type) => set({ selectedType: type }),
 
   isYearSelectDisabled: true,

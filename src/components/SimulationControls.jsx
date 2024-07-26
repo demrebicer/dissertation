@@ -78,7 +78,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
         <div className="race-configuration-title">Race Configuration</div>
 
         <div className="dropdowns">
-          <Select
+          {/* <Select
             className="select-box"
             classNamePrefix="select"
             options={typeOptions}
@@ -86,7 +86,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
             onChange={setSelectedType}
             value={selectedType}
             isDisabled={loading}
-          />
+          /> */}
           <Select
             className="select-box"
             classNamePrefix="select"

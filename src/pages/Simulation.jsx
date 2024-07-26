@@ -45,8 +45,8 @@ export default function Simulation() {
     try {
       setLoading(true);
       const [telemetryResponse, timingResponse] = await Promise.all([
-        axios.get(`http://localhost:8000/telemetry/${year}/${type}`),
-        axios.get(`http://localhost:8000/timing/${year}/${type}`),        
+        axios.get(`http://localhost:8000/telemetry/${year}/R`),
+        axios.get(`http://localhost:8000/timing/${year}/R`),        
         // axios.get(`http://api.demrebicer.com/telemetry/${year}/${type}`),
         // axios.get(`http://api.demrebicer.com/timing/${year}/${type}`),
       ]);
