@@ -31,4 +31,4 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local_path: ./dist/*
         remote_path: '/public_html/thesis/'
-        sftp_only: true
+        sftp_only: false
