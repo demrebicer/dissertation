@@ -47,8 +47,8 @@ export default function Simulation() {
       const [telemetryResponse, timingResponse] = await Promise.all([
         axios.get(`http://localhost:8000/telemetry/${year}/R`),
         axios.get(`http://localhost:8000/timing/${year}/R`),        
-        // axios.get(`http://api.demrebicer.com/telemetry/${year}/${type}`),
-        // axios.get(`http://api.demrebicer.com/timing/${year}/${type}`),
+        // axios.get(`http://api.demrebicer.com/telemetry/${year}/R`),
+        // axios.get(`http://api.demrebicer.com/timing/${year}/R`),
       ]);
 
       // Set telemetry data
@@ -133,7 +133,7 @@ export default function Simulation() {
           <Sky sunPosition={[20, 50, 20]} />
         )}
 
-        <ambientLight intensity={currentWeather === "sunny" ? 2 : 1} />
+        <ambientLight intensity={currentWeather === "sunny" ? 3 : 1.5} />
         <directionalLight
           castShadow
           position={[10, 80, 100]}
