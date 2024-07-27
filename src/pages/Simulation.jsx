@@ -3,6 +3,7 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Sky, BakeShadows } from "@react-three/drei";
 import axios from "axios";
 import { useStore } from "../utils/store";
+import { FiMap, FiSliders } from "react-icons/fi";
 import "../assets/styles/simulation.scss";
 
 import RaceTrack from "../components/RaceTrack";
@@ -15,6 +16,8 @@ import RacingLine from "../components/RacingLine";
 
 export default function Simulation() {
   const [carsData, setCarsData] = useState([]);
+  const [showPositionsTable, setShowPositionsTable] = useState(true);
+  const [showSimulationControls, setShowSimulationControls] = useState(true);
 
   const {
     setLapsData,
@@ -46,7 +49,7 @@ export default function Simulation() {
       setLoading(true);
       const [telemetryResponse, timingResponse] = await Promise.all([
         axios.get(`http://localhost:8000/telemetry/${year}/R`),
-        axios.get(`http://localhost:8000/timing/${year}/R`),        
+        axios.get(`http://localhost:8000/timing/${year}/R`),
         // axios.get(`http://api.demrebicer.com/telemetry/${year}/R`),
         // axios.get(`http://api.demrebicer.com/timing/${year}/R`),
       ]);
@@ -95,18 +98,30 @@ export default function Simulation() {
   return (
     <div className="homepage">
       {loading && <FullPageLoader />}
+      <div className="mobile-visible-toggles">
+        <button onClick={() => setShowPositionsTable((prev) => !prev)}>
+          <FiMap />
+        </button>
+        <button onClick={() => setShowSimulationControls((prev) => !prev)}>
+          <FiSliders />
+        </button>
+      </div>
 
-      <SimulationControls
-        translation={translation}
-        setTranslation={setTranslation}
-        rotation={rotation}
-        setRotation={setRotation}
-        scale={scale}
-        setScale={setScale}
-        fetchTelemetryData={fetchTelemetryData}
-      />
+      <div className={showSimulationControls ? null : "hidden"}>
+        <SimulationControls
+          translation={translation}
+          setTranslation={setTranslation}
+          rotation={rotation}
+          setRotation={setRotation}
+          scale={scale}
+          setScale={setScale}
+          fetchTelemetryData={fetchTelemetryData}
+        />
+      </div>
 
-      <PositionsTable />
+      <div className={showPositionsTable ? null : "hidden"}>
+        <PositionsTable />
+      </div>
 
       <Canvas shadows camera={{ position: [0, 200, 300], fov: 50 }}>
         {currentWeather === "rainy" ? (

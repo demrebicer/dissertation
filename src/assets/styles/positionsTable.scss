@@ -1,19 +1,14 @@
 .positions-table {
   position: absolute;
-  top: 5%;
+  top: 7%;
   left: 2%;
   z-index: 1;
   width: 270px;
   background: rgba(0, 0, 0, 0.7);
   font-family: "Formula1", Arial, sans-serif;
   color: white;
-
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
-
-  // #my-tooltip {
-  //   font-family:  Arial, sans-serif;
-  // }
 
   .skip-next-lap {
     position: absolute;
@@ -70,14 +65,12 @@
       width: 100%;
       height: 35px;
       user-select: none;
+      display: flex; /* Flex display added */
+      align-items: center; /* Center items vertically */
 
       .position-container {
-        position: absolute;
         width: 35px;
         height: 35px;
-        left: 0;
-        top: 0;
-        background: rgba(0, 0, 0, 0.1);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -89,48 +82,99 @@
         color: rgba(255, 255, 255, 0.6);
       }
 
+      .team-color {
+        width: 6px;
+        height: 16px;
+        border-radius: 2px;
+        margin-left: 12px; /* Adjust margin as needed */
+      }
+
       .abbreviation {
-        position: absolute;
         width: 50px;
         height: 20px;
-        left: 60px;
-        top: 7px;
         font-size: 17px;
         line-height: 20px;
         color: #ffffff;
-      }
-
-      .team-color {
-        position: absolute;
-        width: 6px;
-        height: 16px;
-        left: 47px;
-        top: 9px;
-        border-radius: 2px;
+        margin-left: 13px; /* Adjust margin as needed */
       }
 
       .interval-to-position-ahead {
-        position: absolute;
         width: 59px;
         height: 19px;
-        left: 153px;
-        top: 8px;
         font-size: 16px;
         line-height: 19px;
         color: #ffffff;
+        margin-left: auto; /* Push this item to the far right */
       }
 
       .visible-toggle {
-        position: absolute;
-        width: 59px;
-        height: 19px;
-        left: 238px;
-        top: 6px;
-        font-size: 16px;
-        line-height: 19px;
+        width: 24px;
+        height: 24px;
         color: #ffffff;
         cursor: pointer;
-        user-select: none; /* Metin seçimini engeller */
+        margin-left: 20px; /* Adjust margin as needed */
+        margin-right: 10px; /* Adjust margin as needed */
+        user-select: none; /* Prevent text selection */
+      }
+    }
+  }
+
+  // Responsive styles
+  @media (max-width: 768px) {
+    width: 100%;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: 0;
+
+    .lap-info {
+      .lap-title {
+        font-size: 18px;
+      }
+
+      .lap-count {
+        font-size: 16px;
+      }
+
+      .lap-time {
+        font-size: 18px;
+      }
+    }
+
+    .drivers {
+      .driver {
+        height: 30px;
+
+        .position-container {
+          width: 30px;
+          height: 30px;
+        }
+
+        .position {
+          font-size: 14px;
+        }
+
+        .team-color {
+          width: 5px;
+          height: 14px;
+          margin-left: 10px; /* Adjust margin as needed */
+        }
+
+        .abbreviation {
+          font-size: 15px;
+          margin-left: 10px; /* Adjust margin as needed */
+        }
+
+        .interval-to-position-ahead {
+          font-size: 14px;
+        }
+
+        .visible-toggle {
+          width: 20px;
+          height: 20px;
+          margin-left: 20px; /* Adjust margin as needed */
+          margin-right: 10px; /* Adjust margin as needed */
+        }
       }
     }
   }

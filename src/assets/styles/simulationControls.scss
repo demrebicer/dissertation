@@ -11,7 +11,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 1;
+  z-index: 5;
 
   .race-configuration-title {
     font-size: 18px;
@@ -285,6 +285,99 @@
     .value {
       font-family: "Formula1-Regular", sans-serif;
       font-size: 18px;
+    }
+  }
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .race-configuration-container {
+    width: 100%;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 0;
+    padding: 10px;
+
+    .race-configuration-title {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      margin: 20px 0 10px;
+    }
+
+    .icon-button {
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  .racing-line-controls {
+    width: 100%;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    padding: 10px;
+    border-radius: 0;
+
+    h3 {
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    .translation-control-group {
+      flex-direction: column;
+
+      .input-wrapper {
+        margin-left: 0;
+        margin-bottom: 10px;
+
+        .number-input {
+          width: 100%;
+        }
+      }
+    }
+
+    .control-group {
+      flex-direction: column;
+      align-items: flex-start;
+
+      span {
+        margin: 10px 0;
+      }
+
+      .slider-input {
+        width: 100%;
+      }
+    }
+
+    label {
+      width: 100%;
+      margin-bottom: 5px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+    }
+  }
+
+  .live-info {
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    gap: 5px;
+
+    .info-box {
+      .label {
+        font-size: 16px;
+      }
+
+      .value {
+        font-size: 16px;
+      }
     }
   }
 }

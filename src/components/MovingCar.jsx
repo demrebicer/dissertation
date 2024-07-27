@@ -57,17 +57,17 @@ function MovingCar({ driverName, path, color, translation, rotation, scale }) {
     audioLoader.load(AccelerationSound, (buffer) => {
       accelerationSound.setBuffer(buffer);
       accelerationSound.setLoop(true);
-      accelerationSound.setVolume(0.5);
+      accelerationSound.setVolume(0.1);
     });
     audioLoader.load(CruiseSound, (buffer) => {
       cruiseSound.setBuffer(buffer);
       cruiseSound.setLoop(true);
-      cruiseSound.setVolume(0.5);
+      cruiseSound.setVolume(0.1);
     });
     audioLoader.load(DecelerationSound, (buffer) => {
       decelerationSound.setBuffer(buffer);
       decelerationSound.setLoop(true);
-      decelerationSound.setVolume(0.5);
+      decelerationSound.setVolume(0.1);
     });
 
     accelerationSoundRef.current = accelerationSound;
@@ -255,7 +255,7 @@ function MovingCar({ driverName, path, color, translation, rotation, scale }) {
       {clonedScene && <primitive object={clonedScene} scale={0.65} />}
       <group ref={cameraRef} />
 
-      {isVisible && (
+      {isVisible && cameraMode === "free" && (
         <Html distanceFactor={10} position={[0, 1.5, 0]}>
           <div
             style={{
