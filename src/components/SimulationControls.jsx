@@ -64,6 +64,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
 
   return (
     <div>
+      
       {showRacingLineControls && (
         <RacingLineControls
           translation={translation}
@@ -75,6 +76,8 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
         />
       )}
       <div className="race-configuration-container">
+      <div className="race-title">BRITISH GRAND PRIX</div>
+
         <div className="race-configuration-title">Race Configuration</div>
 
         <div className="dropdowns">
