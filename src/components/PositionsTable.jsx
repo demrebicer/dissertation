@@ -246,6 +246,8 @@ const PositionsTable = () => {
         size={24}
         data-tooltip-content="Skip Next Lap"
         data-tooltip-id="my-tooltip"
+        aria-label="Skip Next Lap"
+        data-testid="skip-next-lap"
       />
       <div className="lap-info">
         <div className="lap-title">LAP</div>

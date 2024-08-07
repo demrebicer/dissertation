@@ -5,4 +5,8 @@ import react from "@vitejs/plugin-react-swc";
 export default defineConfig({
   plugins: [react()],
   assetsInclude: ["**/*.hdr"],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+  },
 });

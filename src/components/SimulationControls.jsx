@@ -64,7 +64,6 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
 
   return (
     <div>
-      
       {showRacingLineControls && (
         <RacingLineControls
           translation={translation}
@@ -76,20 +75,11 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
         />
       )}
       <div className="race-configuration-container">
-      <div className="race-title">BRITISH GRAND PRIX</div>
+        <div className="race-title">BRITISH GRAND PRIX</div>
 
         <div className="race-configuration-title">Race Configuration</div>
 
         <div className="dropdowns">
-          {/* <Select
-            className="select-box"
-            classNamePrefix="select"
-            options={typeOptions}
-            placeholder="Select Type"
-            onChange={setSelectedType}
-            value={selectedType}
-            isDisabled={loading}
-          /> */}
           <Select
             className="select-box"
             classNamePrefix="select"
@@ -98,6 +88,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
             onChange={setSelectedYear}
             isDisabled={isYearSelectDisabled || loading}
             value={selectedYear}
+            aria-label="Select Year"
           />
         </div>
 
@@ -107,6 +98,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           <button
             className={`icon-button ${cameraMode === "free" ? "selected" : ""}`}
             onClick={() => setCameraMode("free")}
+            aria-label="Free Camera"
             data-tooltip-id="my-tooltip"
             data-tooltip-content="Free Camera"
           >
@@ -115,6 +107,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           <button
             className={`icon-button ${cameraMode === "follow" ? "selected" : ""}`}
             onClick={() => setCameraMode("follow")}
+            aria-label="Follow Camera"
             data-tooltip-id="my-tooltip"
             data-tooltip-content="Follow Camera"
           >
@@ -123,6 +116,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           <button
             className={`icon-button ${cameraMode === "tv" ? "selected" : ""}`}
             onClick={() => setCameraMode("tv")}
+            aria-label="TV Camera"
             data-tooltip-id="my-tooltip"
             data-tooltip-content="TV Camera"
           >
@@ -135,6 +129,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           <button
             className={`icon-button ${showRacingLineControls ? "selected" : ""}`}
             onClick={() => setShowRacingLineControls(!showRacingLineControls)}
+            aria-label="Toggle Racing Line Controls"
             data-tooltip-id="my-tooltip"
             data-tooltip-content="Toggle Racing Line Controls"
           >
@@ -143,6 +138,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           <button
             className={`icon-button ${isRacingLineVisible ? "selected" : ""}`}
             onClick={toggleRacingLineVisibility}
+            aria-label="Toggle Racing Line"
             data-tooltip-id="my-tooltip"
             data-tooltip-content="Toggle Racing Line"
           >
@@ -163,6 +159,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
                 });
               }
             }}
+            aria-label="Toggle Fullscreen"
             data-tooltip-id="my-tooltip"
             data-tooltip-content="Toggle Fullscreen"
           >
@@ -174,6 +171,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           <button
             className="icon-button"
             onClick={() => setIsSoundMuted(!isSoundMuted)}
+            aria-label="Toggle Mute Sound"
             data-tooltip-id="my-tooltip"
             data-tooltip-content="Toggle Mute Sound"
           >
@@ -186,6 +184,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           <button
             className={`icon-button ${currentWeather === "sunny" ? "selected" : ""}`}
             onClick={() => setCurrentWeather("sunny")}
+            aria-label="Sunny Weather"
             data-tooltip-id="my-tooltip"
             data-tooltip-content="Sunny Weather"
           >
@@ -194,6 +193,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           <button
             className={`icon-button ${currentWeather === "cloudy" ? "selected" : ""}`}
             onClick={() => setCurrentWeather("cloudy")}
+            aria-label="Cloudy Weather"
             data-tooltip-id="my-tooltip"
             data-tooltip-content="Cloudy Weather"
           >
@@ -202,6 +202,7 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
           <button
             className={`icon-button ${currentWeather === "rainy" ? "selected" : ""}`}
             onClick={() => setCurrentWeather("rainy")}
+            aria-label="Rainy Weather"
             data-tooltip-id="my-tooltip"
             data-tooltip-content="Rainy Weather"
           >

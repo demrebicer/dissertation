@@ -32,6 +32,7 @@ export default function RacingLineControls({ translation, setTranslation, rotati
           stop={() => console.log("Stopped")}
           stickColor="#fff"
           baseColor="rgba(0, 0, 0, 0.7)"
+          data-testid="joystick"
         />
 
         <div className="input-wrapper">
@@ -41,9 +42,10 @@ export default function RacingLineControls({ translation, setTranslation, rotati
             type="number"
             value={translation.x.toFixed(2)}
             onChange={(e) => setTranslation({ ...translation, x: parseFloat(e.target.value) })}
+            data-testid="input-translation-x"
           />
           <span className="suffix">
-            <button onClick={resetTranslationX}>
+            <button onClick={resetTranslationX} data-testid="reset-translation-x">
               <FaUndo />
             </button>
           </span>
@@ -56,10 +58,10 @@ export default function RacingLineControls({ translation, setTranslation, rotati
             type="number"
             value={translation.z.toFixed(2)}
             onChange={(e) => setTranslation({ ...translation, z: parseFloat(e.target.value) })}
-            data-prefix="Z"
+            data-testid="input-translation-z"
           />
           <span className="suffix">
-            <button onClick={resetTranslationZ}>
+            <button onClick={resetTranslationZ} data-testid="reset-translation-z">
               <FaUndo />
             </button>
           </span>
@@ -75,9 +77,10 @@ export default function RacingLineControls({ translation, setTranslation, rotati
           max="180"
           value={rotation.y}
           onChange={(e) => setRotation({ ...rotation, y: parseFloat(e.target.value) })}
+          data-testid="slider-rotation-y"
         />
         <span>{rotation.y.toFixed(2)}</span>
-        <button onClick={resetRotationY}>
+        <button onClick={resetRotationY} data-testid="reset-rotation-y">
           <FaUndo />
         </button>
       </div>
@@ -92,9 +95,10 @@ export default function RacingLineControls({ translation, setTranslation, rotati
           max="3"
           step="0.01"
           onChange={(e) => setScale(parseFloat(e.target.value))}
+          data-testid="slider-scale"
         />
         <span>{scale.toFixed(2)}</span>
-        <button onClick={resetScale}>
+        <button onClick={resetScale} data-testid="reset-scale">
           <FaUndo />
         </button>
       </div>
