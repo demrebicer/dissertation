@@ -3,6 +3,8 @@ import { create, act } from "@react-three/test-renderer";
 import { useGLTF } from "@react-three/drei";
 import MovingCar from "../components/MovingCar";
 import { useStore } from "../utils/store";
+import { adjustOpacity, applyColorToBase, applyBrakeLightIntensity } from "../components/MovingCar";
+import * as THREE from "three";
 
 vi.mock("@react-three/drei", () => {
   const useGLTF = vi.fn(() => ({
@@ -109,5 +111,73 @@ describe("MovingCar component", () => {
     expect(useGLTF.preload).toHaveBeenCalledWith("/assets/f1_car.glb");
 
     expect(component).toBeDefined();
+  });
+
+  it("should adjust the opacity of the gltf scene", () => {
+    const mockGLTF = {
+      traverse: vi.fn((callback) => {
+        const child = {
+          material: {
+            clone: vi.fn().mockReturnThis(),
+          },
+        };
+        callback(child);
+      }),
+      nodes: {},
+      materials: {},
+    };
+
+    const opacity = 0.5;
+    adjustOpacity(mockGLTF, opacity);
+
+    expect(mockGLTF.traverse).toHaveBeenCalled();
+  });
+
+  it("should apply the correct color to the base mesh of the GLTF scene", () => {
+    const mockMaterial = {
+      clone: vi.fn().mockReturnThis(),
+      color: new THREE.Color(),
+    };
+
+    const mockBaseMesh = {
+      material: mockMaterial,
+    };
+
+    const mockGLTFScene = {
+      getObjectByName: vi.fn(() => mockBaseMesh),
+    };
+
+    const color = "red";
+
+    applyColorToBase(mockGLTFScene, color);
+
+    const baseMesh = mockGLTFScene.getObjectByName("Base");
+    expect(baseMesh).toBeDefined();
+    expect(baseMesh.material.clone).toHaveBeenCalled();
+    expect(baseMesh.material.color.getHexString()).toBe(new THREE.Color(color).getHexString());
+  });
+
+  it("should apply the correct brake light intensity to the GLTF scene", () => {
+    const brakeLightMaterial = new THREE.MeshStandardMaterial({
+      color: new THREE.Color("darkred"),
+      emissive: new THREE.Color("darkred"),
+      emissiveIntensity: 0,
+    });
+
+    const mockBrakeLight = {
+      material: brakeLightMaterial,
+    };
+
+    const mockGLTFScene = {
+      getObjectByName: vi.fn(() => mockBrakeLight),
+    };
+
+    const intensity = 1.5;
+
+    applyBrakeLightIntensity(mockGLTFScene, intensity);
+
+    const brakeLight = mockGLTFScene.getObjectByName("Brake_Light");
+    expect(brakeLight).toBeDefined();
+    expect(brakeLight.material.emissiveIntensity).toBe(intensity);
   });
 });

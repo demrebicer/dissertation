@@ -1,7 +1,8 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import PositionsTable from "../components/PositionsTable";
 import { useStore } from "../utils/store";
+import { formatTime } from "../components/PositionsTable";
 
 vi.mock("../utils/store", () => ({
   useStore: vi.fn(),
@@ -34,9 +35,12 @@ const mockStore = {
 };
 
 describe("PositionsTable", () => {
-  it("renders the component correctly", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
     useStore.mockReturnValue(mockStore);
+  });
 
+  it("renders the component correctly", () => {
     render(<PositionsTable />);
 
     expect(screen.getByText("LAP")).toBeTruthy();
@@ -90,5 +94,106 @@ describe("PositionsTable", () => {
     fireEvent.click(driverElement);
 
     expect(mockSetSelectedDriver).toHaveBeenCalledWith("driver1");
+  });
+
+  it("toggles driver visibility when eye icon is clicked", () => {
+    const mockToggleDriverVisibility = vi.fn();
+    const mockDriverPositions = [{ DriverName: "driver1" }];
+
+    useStore.mockReturnValue({
+      ...mockStore,
+      toggleDriverVisibility: mockToggleDriverVisibility,
+      driverPositions: mockDriverPositions,
+      driversVisibility: ["driver1"],
+    });
+
+    render(<PositionsTable />);
+
+    const eyeSlashIcon = screen.getByTestId("eye-slash-icon");
+    fireEvent.click(eyeSlashIcon);
+
+    expect(mockToggleDriverVisibility).toHaveBeenCalledWith("driver1");
+  });
+
+  it("updates timer correctly based on elapsed time", async () => {
+    const mockSetTime = vi.fn();
+    const mockStartTimestamp = { current: Date.now() - 5000 };
+    const mockSessionEndTime = { current: Date.now() + 10000 };
+
+    useStore.mockReturnValue({
+      ...mockStore,
+      setTime: mockSetTime,
+      startTimestamp: mockStartTimestamp,
+      sessionEndTime: mockSessionEndTime,
+      dataLoaded: true,
+    });
+
+    render(<PositionsTable />);
+
+    await waitFor(() => {
+      expect(mockSetTime).toHaveBeenCalled();
+    });
+  });
+
+  it("formats time correctly", () => {
+    expect(formatTime(0)).toBe("00:00:00");
+    expect(formatTime(3661)).toBe("01:01:01");
+    expect(formatTime(86399)).toBe("23:59:59");
+  });
+
+  it("gets current position data correctly", async () => {
+    const mockStreamData = [
+      { Driver: "driver1", Time: "5", Position: 1, Lap: 1 },
+      { Driver: "driver1", Time: "10", Position: 2, Lap: 1 },
+      { Driver: "driver2", Time: "15", Position: 1, Lap: 1 },
+    ];
+    const mockCompletedLapsData = { driver1: 1, driver2: 1 };
+    const mockDriverStatusData = { driver1: "Finished", driver2: "DNF" };
+    const mockSetDriverPositions = vi.fn();
+
+    useStore.mockReturnValue({
+      ...mockStore,
+      streamData: mockStreamData,
+      completedLapsData: mockCompletedLapsData,
+      driverStatusData: mockDriverStatusData,
+      setDriverPositions: mockSetDriverPositions,
+      lapsData: [
+        { Driver: "driver1", NumberOfLaps: 1, Time: "10", Position: 1, TeamColor: "red" },
+        { Driver: "driver2", NumberOfLaps: 1, Time: "20", Position: 2, TeamColor: "blue" },
+      ],
+      currentLap: 1,
+      dataLoaded: true,
+    });
+
+    render(<PositionsTable />);
+
+    // Wait for the useEffect to trigger and update the state
+    await waitFor(() => {
+      expect(mockSetDriverPositions).toHaveBeenCalled();
+    });
+
+    // Check if the function was called with the correct arguments
+    const expectedCallArgs = [
+      {
+        Driver: "driver1",
+        NumberOfLaps: 1,
+        Time: "10",
+        Position: 3,
+        TeamColor: "red",
+        GapToLeader: "Finished",
+        IntervalToPositionAhead: "Finished",
+      },
+      {
+        Driver: "driver2",
+        NumberOfLaps: 1,
+        Time: "20",
+        Position: "DNF",
+        TeamColor: "blue",
+        GapToLeader: "DNF",
+        IntervalToPositionAhead: "DNF",
+      },
+    ];
+
+    expect(mockSetDriverPositions).toHaveBeenCalledWith(expect.arrayContaining(expectedCallArgs));
   });
 });

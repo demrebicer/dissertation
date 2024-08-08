@@ -8,6 +8,38 @@ import AccelerationSound from "../assets/sounds/acceleration.mp3";
 import CruiseSound from "../assets/sounds/cruise.mp3";
 import DecelerationSound from "../assets/sounds/deceleration.mp3";
 
+const brakeLightMaterial = new THREE.MeshStandardMaterial({
+  color: new THREE.Color("darkred"),
+  emissive: new THREE.Color("darkred"),
+  emissiveIntensity: 0,
+});
+
+export const applyBrakeLightIntensity = (gltfScene, intensity) => {
+  const brakeLight = gltfScene.getObjectByName("Brake_Light");
+  if (brakeLight) {
+    brakeLight.material = brakeLightMaterial;
+    brakeLight.material.emissiveIntensity = intensity;
+  }
+};
+
+export const adjustOpacity = (gltfScene, opacity) => {
+  gltfScene.traverse((child) => {
+    if (child.material) {
+      child.material = child.material.clone();
+      child.material.transparent = true;
+      child.material.opacity = opacity;
+    }
+  });
+};
+
+export const applyColorToBase = (gltfScene, color) => {
+  const baseMesh = gltfScene.getObjectByName("Base");
+  if (baseMesh) {
+    baseMesh.material = baseMesh.material.clone(); // Clone the material to ensure each car has a unique material
+    baseMesh.material.color = new THREE.Color(color);
+  }
+};
+
 function MovingCar({ driverName, path, color, translation, rotation, scale }) {
   const carRef = useRef();
   const cameraRef = useRef();
@@ -203,41 +235,6 @@ function MovingCar({ driverName, path, color, translation, rotation, scale }) {
   });
 
   const isVisible = !driversVisibility.includes(driverName);
-
-  const brakeLightMaterial = useMemo(() => {
-    const material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color("darkred"),
-      emissive: new THREE.Color("darkred"),
-      emissiveIntensity: 0,
-    });
-    return material;
-  }, []);
-
-  const applyBrakeLightIntensity = (gltfScene, intensity) => {
-    const brakeLight = gltfScene.getObjectByName("Brake_Light");
-    if (brakeLight) {
-      brakeLight.material = brakeLightMaterial;
-      brakeLight.material.emissiveIntensity = intensity;
-    }
-  };
-
-  const applyColorToBase = (gltfScene, color) => {
-    const baseMesh = gltfScene.getObjectByName("Base");
-    if (baseMesh) {
-      baseMesh.material = baseMesh.material.clone(); // Clone the material to ensure each car has a unique material
-      baseMesh.material.color = new THREE.Color(color);
-    }
-  };
-
-  const adjustOpacity = (gltfScene, opacity) => {
-    gltfScene.traverse((child) => {
-      if (child.material) {
-        child.material = child.material.clone();
-        child.material.transparent = true;
-        child.material.opacity = opacity;
-      }
-    });
-  };
 
   const clonedScene = useMemo(() => {
     if (gltf.scene) {

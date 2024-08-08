@@ -5,7 +5,7 @@ import { FaAngleDoubleRight, FaEye, FaEyeSlash } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
 import { useStore } from "../utils/store";
 
-const formatTime = (timeInSeconds) => {
+export const formatTime = (timeInSeconds) => {
   const hours = Math.floor(timeInSeconds / 3600);
   const minutes = Math.floor((timeInSeconds % 3600) / 60);
   const seconds = Math.floor(timeInSeconds % 60);
@@ -290,6 +290,7 @@ const PositionsTable = () => {
                     onClick={() => {
                       toggleDriverVisibility(driver.DriverName);
                     }}
+                    data-testid="eye-slash-icon"
                   />
                 ) : (
                   <FaEye
