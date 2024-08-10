@@ -73,7 +73,7 @@ const PositionsTable = () => {
           const updatedDriverPositions = getDriverPositions(newTime, currentLap);
           setDriverPositions(updatedDriverPositions);
         },
-        20, // Update interval set to 20 milliseconds
+        1, // Update interval set to 20 milliseconds
         { aligned: true, immediate: true },
       );
     }

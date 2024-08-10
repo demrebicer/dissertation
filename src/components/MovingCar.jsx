@@ -34,9 +34,18 @@ export const adjustOpacity = (gltfScene, opacity) => {
 
 export const applyColorToBase = (gltfScene, color) => {
   const baseMesh = gltfScene.getObjectByName("Base");
-  if (baseMesh) {
+  const frontRightSmallCap = gltfScene.getObjectByName("Front_Right_Small_Cap");
+  const frontLeftSmallCap = gltfScene.getObjectByName("Front_Left_Small_Cap");
+
+  if (baseMesh && frontRightSmallCap && frontLeftSmallCap) {
     baseMesh.material = baseMesh.material.clone(); // Clone the material to ensure each car has a unique material
     baseMesh.material.color = new THREE.Color(color);
+
+    frontRightSmallCap.material = frontRightSmallCap.material.clone();
+    frontRightSmallCap.material.color = new THREE.Color(color);
+
+    frontLeftSmallCap.material = frontLeftSmallCap.material.clone();
+    frontLeftSmallCap.material.color = new THREE.Color(color);
   }
 };
 
