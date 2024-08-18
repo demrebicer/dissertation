@@ -28,4 +28,4 @@ jobs:
         username: u582366441.demrebicer.com
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./dist/
-        server-dir: /public_html/thesis_v2/
+        server-dir: /public_html/thesis/
