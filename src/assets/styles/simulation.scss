@@ -58,12 +58,12 @@
     position: absolute;
     top: 20px;
     left: 20px;
-    background-color: rgba(0, 0, 0, 0.7); /* Şeffaf siyah arka plan */
-    color: white; /* Beyaz yazı */
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
     padding: 10px 20px;
-    border-radius: 10px; /* Yuvarlatılmış köşeler */
-    font-family: "Courier New", Courier, monospace; /* Kronometre tarzı yazı tipi */
-    font-size: 1.5em; /* Yazı boyutu */
+    border-radius: 10px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 1.5em;
     z-index: 1;
   }
 

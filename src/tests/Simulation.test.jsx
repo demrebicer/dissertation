@@ -1,12 +1,9 @@
-// __tests__/Simulation.test.jsx
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
 import { useStore } from "../utils/store";
 import Simulation from "../pages/Simulation";
-import axios from "axios";
 
-// Mock the dependencies
 vi.mock("@react-three/fiber", () => ({
   Canvas: ({ children }) => <div>{children}</div>,
   useFrame: vi.fn(),
@@ -28,7 +25,6 @@ vi.mock("@react-three/drei", () => {
 vi.mock("../utils/store");
 vi.mock("axios");
 
-// Mock global AudioContext
 global.AudioContext = vi.fn().mockImplementation(() => ({
   createGain: () => ({
     connect: vi.fn(),

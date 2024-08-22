@@ -130,20 +130,16 @@ describe("Rain", () => {
       renderer = await create(<Rain />);
     });
 
-    // Initialize positions
     rainRef.current.geometry.attributes.position.array.set([0, 500, 0, 0, 490, 0, 0, 500, 0, 0, 490, 0]);
 
-    // Simulate a frame
     act(() => {
       frameCallback();
     });
 
-    // Check positions
     const positions = rainRef.current.geometry.attributes.position.array;
     expect(positions).toEqual(new Float32Array([0, 500, 0, 0, 490, 0, 0, 500, 0, 0, 490, 0]));
     expect(rainRef.current.geometry.attributes.position.needsUpdate).toBe(false);
 
-    // Simulate more frames to trigger reset logic
     act(() => {
       for (let i = 0; i < 300; i++) {
         frameCallback();

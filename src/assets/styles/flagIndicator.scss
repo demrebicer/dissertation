@@ -11,17 +11,17 @@
 
 .flag-container {
   position: absolute;
-  top: -100px; // Animasyonun başlaması için başlangıç pozisyonu
+  top: -100px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
   display: flex;
   align-items: center;
   padding: 10px;
-  opacity: 0; // Başlangıçta görünmez
+  opacity: 0;
 
   &.visible {
-    animation: slideDown 0.5s ease-out forwards; // Animasyon tanımı
+    animation: slideDown 0.5s ease-out forwards;
   }
 
   &.all-clear .flag-frame .flag-icon {
@@ -66,8 +66,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: rgba(0, 0, 0, 0.7); // Black transparent background for text
-      padding: 10px 20px; // Adjusted padding for more space on sides
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 10px 20px;
       border-top-right-radius: 5px;
       border-bottom-right-radius: 5px;
 
@@ -75,13 +75,12 @@
         color: #fff;
         font-size: 18px;
         margin-left: 10px;
-        font-family: "Formula1-Regular", sans-serif; // Apply the Formula1-Regular font
+        font-family: "Formula1-Regular", sans-serif;
       }
     }
   }
 }
 
-// SCSS to dynamically adjust heights
 $icon-size: 50px;
 
 .flag-container {

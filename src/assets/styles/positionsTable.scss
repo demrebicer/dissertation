@@ -18,14 +18,14 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    user-select: none; /* Metin seçimini engeller */
+    user-select: none;
 
     &:focus {
-      outline: none; /* Buton odaklandığında mavi çerçeveyi engeller */
+      outline: none;
     }
 
     &:active {
-      outline: none; /* Buton tıklandığında mavi çerçeveyi engeller */
+      outline: none;
     }
   }
 
@@ -65,8 +65,8 @@
       width: 100%;
       height: 35px;
       user-select: none;
-      display: flex; /* Flex display added */
-      align-items: center; /* Center items vertically */
+      display: flex;
+      align-items: center;
 
       .position-container {
         width: 35px;
@@ -86,7 +86,7 @@
         width: 6px;
         height: 16px;
         border-radius: 2px;
-        margin-left: 12px; /* Adjust margin as needed */
+        margin-left: 12px;
       }
 
       .abbreviation {
@@ -95,7 +95,7 @@
         font-size: 17px;
         line-height: 20px;
         color: #ffffff;
-        margin-left: 13px; /* Adjust margin as needed */
+        margin-left: 13px;
       }
 
       .interval-to-position-ahead {
@@ -104,7 +104,7 @@
         font-size: 16px;
         line-height: 19px;
         color: #ffffff;
-        margin-left: auto; /* Push this item to the far right */
+        margin-left: auto;
       }
 
       .visible-toggle {
@@ -112,9 +112,9 @@
         height: 24px;
         color: #ffffff;
         cursor: pointer;
-        margin-left: 20px; /* Adjust margin as needed */
-        margin-right: 10px; /* Adjust margin as needed */
-        user-select: none; /* Prevent text selection */
+        margin-left: 20px;
+        margin-right: 10px;
+        user-select: none;
       }
     }
   }
@@ -157,12 +157,12 @@
         .team-color {
           width: 5px;
           height: 14px;
-          margin-left: 10px; /* Adjust margin as needed */
+          margin-left: 10px;
         }
 
         .abbreviation {
           font-size: 15px;
-          margin-left: 10px; /* Adjust margin as needed */
+          margin-left: 10px;
         }
 
         .interval-to-position-ahead {
@@ -172,8 +172,8 @@
         .visible-toggle {
           width: 20px;
           height: 20px;
-          margin-left: 20px; /* Adjust margin as needed */
-          margin-right: 10px; /* Adjust margin as needed */
+          margin-left: 20px;
+          margin-right: 10px;
         }
       }
     }

@@ -158,21 +158,21 @@ function MovingCar({ driverName, path, color, translation, rotation, scale }) {
 
       if (cameraMode === "follow" && cameraRef.current && selectedDriver === driverName) {
         const cameraOffsetDistance = 5;
-        const cameraHeight = 2; // Sabit yükseklik
+        const cameraHeight = 2;
         const cameraPosition = new THREE.Vector3()
           .copy(carRef.current.position)
           .add(forwardDirection.multiplyScalar(-cameraOffsetDistance))
-          .setY(cameraHeight); // Sabit yükseklik kullanımı
+          .setY(cameraHeight);
 
-        cameraRef.current.position.lerp(cameraPosition, 0.05); // Daha yumuşak geçiş için lerp faktörü
+        cameraRef.current.position.lerp(cameraPosition, 0.05);
 
-        state.camera.position.lerp(cameraRef.current.position, 0.05); // Daha yumuşak geçiş için lerp faktörü
-        state.camera.lookAt(carRef.current.position.x, cameraHeight, carRef.current.position.z); // Sabit yükseklikle bakış noktası
+        state.camera.position.lerp(cameraRef.current.position, 0.05);
+        state.camera.lookAt(carRef.current.position.x, cameraHeight, carRef.current.position.z);
       }
 
       if (cameraMode === "tv" && carRef.current && selectedDriver === driverName) {
         const cameraPosition = new THREE.Vector3().copy(carRef.current.position);
-        cameraPosition.y = 5; // Sabit yükseklik
+        cameraPosition.y = 5;
         cameraPosition.z -= 10;
         state.camera.position.copy(cameraPosition);
         state.camera.lookAt(carRef.current.position);

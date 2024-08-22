@@ -73,7 +73,7 @@ const PositionsTable = () => {
           const updatedDriverPositions = getDriverPositions(newTime, currentLap);
           setDriverPositions(updatedDriverPositions);
         },
-        1, // Update interval set to 20 milliseconds
+        1, // Update interval set to 1 milliseconds
         { aligned: true, immediate: true },
       );
     }
@@ -162,7 +162,6 @@ const PositionsTable = () => {
         driverList[driver] = !dnfDriverNames.includes(driver) && !finishedDrivers.includes(driver);
       });
 
-      // console.log(driverList);
       setDriverList(driverList);
 
       return sortedLapsData;
@@ -200,7 +199,7 @@ const PositionsTable = () => {
           if (driverStatus !== "DNF") {
             return { ...currentTimeData, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
           }
-        }  else if (driverStatus === "Finished") {
+        } else if (driverStatus === "Finished") {
           const lastStreamData = streamData
             .filter((entry) => entry.Driver === driver)
             .reduce((latest, entry) => {
@@ -210,7 +209,7 @@ const PositionsTable = () => {
               }
               return latest;
             }, null);
-      
+
           if (lastStreamData && parseFloat(lastStreamData.Time) <= currentTime) {
             return { ...currentTimeData, GapToLeader: "Finished", IntervalToPositionAhead: "Finished" };
           }
@@ -233,7 +232,7 @@ const PositionsTable = () => {
         setTime(nextLapTime);
         setCurrentLap(currentLap + 1);
         startTimestamp.current = Date.now();
-        setSkipNextLap(true); // Set the skip flag
+        setSkipNextLap(true);
       }
     }
   };

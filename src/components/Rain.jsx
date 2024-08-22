@@ -1,14 +1,13 @@
 import React, { useRef, useEffect, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { AdditiveBlending } from "three";
-import { useStore } from "../utils/store"; // Import your store hook
+import { useStore } from "../utils/store";
 
 export default function Rain() {
   const rainRef = useRef();
   const count = 3500;
-  const positions = new Float32Array(count * 6); // Start and end points for each line segment
+  const positions = new Float32Array(count * 6);
 
-  // Initialize positions for rain drops
   for (let i = 0; i < count; i++) {
     const x = (Math.random() - 0.5) * 850;
     const y = Math.random() * 500;
@@ -17,7 +16,7 @@ export default function Rain() {
     positions[i * 6 + 1] = y;
     positions[i * 6 + 2] = z;
     positions[i * 6 + 3] = x;
-    positions[i * 6 + 4] = y - 10; // Length of the rain drop
+    positions[i * 6 + 4] = y - 10;
     positions[i * 6 + 5] = z;
   }
 

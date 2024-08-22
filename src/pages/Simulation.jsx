@@ -54,10 +54,8 @@ export default function Simulation() {
         // axios.get(`https://api.demrebicer.com/timing/${year}/R`),
       ]);
 
-      // Set telemetry data
       setCarsData(telemetryResponse.data.cars);
 
-      // Set timing data
       const timingData = timingResponse.data.laps_data;
       setLapsData(timingData);
       setStreamData(timingResponse.data.stream_data);

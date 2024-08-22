@@ -167,12 +167,10 @@ describe("PositionsTable", () => {
 
     render(<PositionsTable />);
 
-    // Wait for the useEffect to trigger and update the state
     await waitFor(() => {
       expect(mockSetDriverPositions).toHaveBeenCalled();
     });
 
-    // Check if the function was called with the correct arguments
     const expectedCallArgs = [
       {
         Driver: "driver1",

@@ -2,15 +2,12 @@
   RewriteEngine On
   RewriteBase /
 
-  # api.demrebicer.com haricindeki tüm alan adları için HTTPS zorunluluğu
   RewriteCond %{HTTPS} off
   RewriteCond %{HTTP_HOST} !^api\.demrebicer\.com$ [NC]
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-  # index.html için özel kural
   RewriteRule ^index\.html$ - [L]
 
-  # Mevcut dosya ve dizinler haricindeki tüm istekleri index.html'e yönlendir
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]

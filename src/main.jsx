@@ -7,7 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 import "./assets/styles/index.scss";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-    <BrowserRouter>
-      <RouterHandler />
-    </BrowserRouter>
+  <BrowserRouter>
+    <RouterHandler />
+  </BrowserRouter>,
 );

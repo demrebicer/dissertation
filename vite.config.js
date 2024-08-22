@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
-import { coverageConfigDefaults } from 'vitest/config';
+import { coverageConfigDefaults } from "vitest/config";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -8,9 +8,9 @@ export default defineConfig({
   assetsInclude: ["**/*.hdr"],
   test: {
     globals: true,
-    environment: 'jsdom',
+    environment: "jsdom",
     coverage: {
-      exclude: ['src/main.jsx', ...coverageConfigDefaults.exclude],
-    }
+      exclude: ["src/main.jsx", ...coverageConfigDefaults.exclude],
+    },
   },
 });

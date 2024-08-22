@@ -22,7 +22,6 @@ To view or inspect GLTF/GLB files, follow these steps using the online platform 
 
 This tool provides a straightforward way to visualize GLTF/GLB models without the need for complex software installations.
 
-
 ## Installation
 
 Use the package manager [npm](https://nodejs.org/en/download/) to install.
@@ -36,12 +35,13 @@ npm install
 ```node
 npm run dev
 ```
+
 The project will open at [http://localhost:5173/](http://localhost:5173/).
 
 ## Testing
 
 For the unit test Vitest is used. To run the tests, use the following command:
-    
+
 ```node
 npm run test
 ```
@@ -52,6 +52,6 @@ For the coverage report, use the following command:
 npm run coverage
 ```
 
-
 ## License
+
 [MIT](https://choosealicense.com/licenses/mit/)
