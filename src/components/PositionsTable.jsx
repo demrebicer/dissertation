@@ -159,7 +159,14 @@ const PositionsTable = () => {
       // Create an object with driver names and their DNF status
       const driverList = {};
       allDriverNames.forEach((driver) => {
-        driverList[driver] = !dnfDriverNames.includes(driver) && !finishedDrivers.includes(driver);
+        // Lider sürücü bitiş çizgisini henüz geçmediyse driverList'te true kalmalı
+        if (finishedDrivers.includes(driver)) {
+          driverList[driver] = true; // Lider henüz yarışı bitirmediği için hala görünür olmalı
+        } else if (dnfDriverNames.includes(driver)) {
+          driverList[driver] = false; // DNF olmuş sürücüleri false yapıyoruz
+        } else {
+          driverList[driver] = true; // Diğer sürücüler hala yarışta olduğu için true yapıyoruz
+        }
       });
 
       setDriverList(driverList);
