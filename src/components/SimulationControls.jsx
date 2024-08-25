@@ -151,11 +151,11 @@ function SimulationControls({ translation, setTranslation, rotation, setRotation
               const elem = document.documentElement;
               if (!document.fullscreenElement) {
                 elem.requestFullscreen().then(() => {
-                  console.log("Entered fullscreen");
+                  // console.log("Entered fullscreen");
                 });
               } else {
                 document.exitFullscreen().then(() => {
-                  console.log("Exited fullscreen");
+                  // console.log("Exited fullscreen");
                 });
               }
             }}

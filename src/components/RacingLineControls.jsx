@@ -25,11 +25,11 @@ export default function RacingLineControls({ translation, setTranslation, rotati
         <Joystick
           size={40}
           stickSize={20}
-          start={() => console.log("Started")}
+          // start={() => console.log("Started")}
           baseShape={JoystickShape.Square}
           stickShape={JoystickShape.Square}
           move={(e) => moveJoystick(e)}
-          stop={() => console.log("Stopped")}
+          // stop={() => console.log("Stopped")}
           stickColor="#fff"
           baseColor="rgba(0, 0, 0, 0.7)"
           data-testid="joystick"

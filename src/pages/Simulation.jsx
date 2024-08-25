@@ -166,7 +166,7 @@ export default function Simulation() {
 
         {!loading &&
           carsData.map((car, index) => {
-            console.log(driverList)
+            // console.log(driverList)
             if (driverList[car.id] === true) {
               return (
                 <MovingCar
