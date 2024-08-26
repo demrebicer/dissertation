@@ -48,10 +48,10 @@ export default function Simulation() {
     try {
       setLoading(true);
       const [telemetryResponse, timingResponse] = await Promise.all([
-        // axios.get(`http://localhost:8000/telemetry/${year}/R`),
-        // axios.get(`http://localhost:8000/timing/${year}/R`),
-        axios.get(`https://api.demrebicer.com/telemetry/${year}/R`),
-        axios.get(`https://api.demrebicer.com/timing/${year}/R`),
+        axios.get(`http://localhost:8000/telemetry/${year}/R`),
+        axios.get(`http://localhost:8000/timing/${year}/R`),
+        // axios.get(`https://api.demrebicer.com/telemetry/${year}/R`),
+        // axios.get(`https://api.demrebicer.com/timing/${year}/R`),
       ]);
 
       setCarsData(telemetryResponse.data.cars);
