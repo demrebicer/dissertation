@@ -22,6 +22,18 @@ To view or inspect GLTF/GLB files, follow these steps using the online platform 
 
 This tool provides a straightforward way to visualize GLTF/GLB models without the need for complex software installations.
 
+## How to change api url
+
+1. To change api url please update the following file:
+
+   ```node
+   src / pages / Simulation.js;
+   ```
+
+2. You can update the code between **lines 50 and 55** with your desired API URLs.
+
+Once you have made this change, the application will start fetching data from the new URLs.
+
 ## Installation
 
 Use the package manager [npm](https://nodejs.org/en/download/) to install.

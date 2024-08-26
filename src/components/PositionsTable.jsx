@@ -160,9 +160,9 @@ const PositionsTable = () => {
       const driverList = {};
       allDriverNames.forEach((driver) => {
         if (finishedDrivers.includes(driver)) {
-          driverList[driver] = true; 
+          driverList[driver] = true;
         } else if (dnfDriverNames.includes(driver)) {
-          driverList[driver] = false; 
+          driverList[driver] = false;
         } else {
           driverList[driver] = true;
         }
