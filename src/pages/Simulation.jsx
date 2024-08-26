@@ -4,6 +4,8 @@ import { OrbitControls, Sky, BakeShadows } from "@react-three/drei";
 import axios from "axios";
 import { useStore } from "../utils/store";
 import { FiMap, FiSliders } from "react-icons/fi";
+import { toast } from 'react-hot-toast';
+
 import "../assets/styles/simulation.scss";
 
 import RaceTrack from "../components/RaceTrack";
@@ -55,7 +57,11 @@ export default function Simulation() {
         /* Remote API */
         // axios.get(`https://api.demrebicer.com/telemetry/${year}/R`),
         // axios.get(`https://api.demrebicer.com/timing/${year}/R`),
-      ]);
+      ]).catch((error) => {
+        console.error("Error fetching data", error);
+        setLoading(false);
+        toast.error("Error fetching data. Please try again later.");
+      });
 
       setCarsData(telemetryResponse.data.cars);
 
