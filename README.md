@@ -22,7 +22,7 @@ To view or inspect GLTF/GLB files, follow these steps using the online platform 
 
 This tool provides a straightforward way to visualize GLTF/GLB models without the need for complex software installations.
 
-## How to change api url
+## How to Change API Url
 
 1. To change api url please update the following file:
 
