@@ -4,7 +4,7 @@ import { OrbitControls, Sky, BakeShadows } from "@react-three/drei";
 import axios from "axios";
 import { useStore } from "../utils/store";
 import { FiMap, FiSliders } from "react-icons/fi";
-import { toast } from 'react-hot-toast';
+import { toast } from "react-hot-toast";
 
 import "../assets/styles/simulation.scss";
 
@@ -51,12 +51,16 @@ export default function Simulation() {
       setLoading(true);
       const [telemetryResponse, timingResponse] = await Promise.all([
         /* Local API */
-        axios.get(`http://localhost:8000/telemetry/${year}/R`),
-        axios.get(`http://localhost:8000/timing/${year}/R`),
+        // axios.get(`http://localhost:8000/telemetry/${year}/R`),
+        // axios.get(`http://localhost:8000/timing/${year}/R`),
 
         /* Remote API */
         // axios.get(`https://api.demrebicer.com/telemetry/${year}/R`),
         // axios.get(`https://api.demrebicer.com/timing/${year}/R`),
+
+        /* Local Response Json */
+        fetch(`/responses/telemetry_${year}_R.json`).then((res) => res.json()),
+        fetch(`/responses/timing_${year}_R.json`).then((res) => res.json()),
       ]).catch((error) => {
         console.error("Error fetching data", error);
         setLoading(false);

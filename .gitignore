@@ -27,3 +27,4 @@ dist-ssr
 *.gltf
 public/assets/race_highlights.mp4
 coverage
+public/responses
